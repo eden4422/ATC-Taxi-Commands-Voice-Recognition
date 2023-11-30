@@ -1,3 +1,4 @@
+# python library imports
 import multiprocessing
 from datetime import datetime
 import queue
@@ -5,50 +6,72 @@ import json
 
 # local imports
 from JsonSaving import *
-from CommandTranscription immport audio_transcripting
+from CommandTranscription import audio_transcripting
+from AudioListener import audio_listener
+from CommandTranscription import audio_transcriber
+from QueueKeys import *
+from Frontend import *
 
-
-
-
-AUDPROC = "Audio listening process"
-AUDTRAN = "Audio " 
 
 # main task that handles
 def thread_managing():
 
+    # Temp variable for airplane identifier
+    plane_id = "JOHNNY"
+
     # Initializing pipes, queues, etc
-    errorQ = queue.Queue() # error queue, used by all processes for all error handling
-    audioQ = queue.Queue() # audio queue, used by thread manager and audio_listening
-    textQ = queue.Queue()
+    frontComIn = queue.Queue() # frontend queue, used by thread manager -> frontend
+    frontComOut = queue.Queue() 
 
-    # Starting 
-    audio_listening_process = multiprocessing.Process(target=audio_listening, args=(audioQ, errorQ))
 
-    while(True):
+    audiobitQ = queue.Queue() # audio queue, used by audio_listening -> thread_manager
+    
+    audioComIn = queue.Queue() # audio comm in
+    audioComOut = queue.Queue() # audio comm out
+    
+    textQ = queue.Queue() # 
+    
+    transComIn = queue.Queue()
+    transComOut = queue.Queue()
+
+    # Starting frontend process
+    frontend_process = multiprocessing.Process(target=front_window, args=(frontComIn, frontComOut))
+
+    # Starting audio listening process
+    audio_listening_process = multiprocessing.Process(target=audio_listener, args=(plane_id, audiobitQ, audioComIn, audioComOut))
+
+    running = True
+
+    while(running):
 
         # Wait idly while audioClipQueue is empty (waiting for task 2 to finish)
-        while(audioQ.empty):
+        
+        frontComIn.put((UPLOG, "Waiting for audio bite to be saved to audiobitQ"))
+        while(audiobitQ.empty and audioComOut.empty):
+            #
+            
             pass
 
+
+
         # Pull audioClip from queue 
-        audioClipFound = audioQ.get()
+        audioClipFound = audiobitQ.get()
 
         # Start audio transcribing process using audioclip and wait for results
-        audio_transcribing_process = multiprocessing.Process(target=audio_transcribing, args=(audioClipFound, textQ, errorQ))
+        audio_transcribing_process = multiprocessing.Process(target=audio_transcriber, args=(audioClipFound, textQ, errorQ))
         audio_transcribing_process.start()
         audio_transcribing_process.join()
 
         # Getting transcribed text from queue
 
-        transcribedText: str = ""
-
-        if textQ.not_empty():
+        if textQ.not_empty() and transComOut:
             transcribedText = textQ.get()
+            # Saving converted text to JSON
+            saveToJSON(convertToJSON(transcribedText))
+        
         else:
-            transcribedText = "ERROR: Text was not transcribed properly. Please refer to error log."
-
-        # Saving converted text to JSON
-        saveToJSON(convertToJSON(transcribedText))
+            frontQ.put((UPERROR,""))
+        
 
 if __name__ == "main":
     processMain = multiprocessing.Process(target=thread_managing)

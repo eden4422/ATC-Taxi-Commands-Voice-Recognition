@@ -1,6 +1,14 @@
+# python library imports
 import multiprocessing
+import queue
 
-def audio_transcribing(input_audio,text_queue, error_queue):
+# local imports
+from ModelOne import model_one
+from ModelTwo import model_two
+from ModelThree import model_three
+
+
+def audio_transcriber(input_audio,text_queue, error_queue):
     
     # creating queue for output text
     outputTextQ = queue.Queue()
