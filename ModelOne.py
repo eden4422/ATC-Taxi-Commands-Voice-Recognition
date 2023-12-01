@@ -1,6 +1,7 @@
 from vosk import Model, KaldiRecognizer
 from queue import Queue 
 import wave
+import json
 
 def model_one(input_audio_Q, output_text_queue, com_in, com_out):
     try:
@@ -17,10 +18,13 @@ def model_one(input_audio_Q, output_text_queue, com_in, com_out):
         recognizer.AcceptWaveform(data)  # Accept the entire waveform
         print(4)
 
-        result = recognizer.Result()
+        result: dict = json.loads(recognizer.Result())
         print(5)
 
-        output_text_queue.put(result)
+        output_text: str = result["text"]
+        
+
+        output_text_queue.put(output_text)
         print(6)
 
     except Exception as e:
