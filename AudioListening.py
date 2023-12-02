@@ -12,17 +12,17 @@ import io
 
 # A class mocking actual functionality of audiolistening, by returning 
 def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
-    
+    print("started listening")
     '''This script processes audio input from the microphone and displays the transcribed text.'''
     # get the samplerate - this is needed by the Kaldi recognizer
     device_info = sd.query_devices(sd.default.device[0], 'input')
     samplerate = int(device_info['default_samplerate'])
 
     # display the default input device
-    print("===> Initial Default Device Number:{} Description: {}".format(sd.default.device[0], device_info))
+    print("===> Initial Default Device Number:{} Description: {}".format(sd.default.device[0], device_info),flush=True)
 
     # setup queue and callback function
-    q = queue.Queue()
+    q = multiprocessing.Queue()
 
     def recordCallback(indata, frames, time, status):
         if status:
@@ -33,7 +33,7 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
     print("===> Build the model and recognizer objects.  This will take a few minutes.")
     model = Model("vosk-model-small-en-us-0.15")
     recognizer = KaldiRecognizer(model, samplerate)
-    recognizer.SetWords(True)
+    recognizer.SetWords(False)
 
     print("===> Begin recording. Press Ctrl+C to stop the recording ")
 

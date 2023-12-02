@@ -6,7 +6,7 @@ def createFrontWindow():
     pass
 
 def front_window(comm_in: queue, comm_out: queue):
-    pass
+    print("frontend started",flush=True)
 
 def updateErrorLog():
     pass

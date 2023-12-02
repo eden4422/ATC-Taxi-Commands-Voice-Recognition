@@ -1,5 +1,6 @@
 # python library imports
 import multiprocessing
+import threading
 from datetime import datetime
 import queue
 import json
@@ -20,27 +21,29 @@ def thread_managing():
     plane_id = "JOHNNY"
 
     # Initializing pipes, queues, etc
-    frontComIn = queue.Queue() # frontend queue, used by thread manager -> frontend
-    frontComOut = queue.Queue() 
+    frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
+    frontComOut = multiprocessing.Queue() 
 
 
-    audiobitQ = queue.Queue() # audio queue, used by audio_listening -> thread_manager
+    audiobitQ = multiprocessing.Queue() # audio queue, used by audio_listening -> thread_manager
     
-    audioComIn = queue.Queue() # audio comm in
-    audioComOut = queue.Queue() # audio comm out
+    audioComIn = multiprocessing.Queue() # audio comm in
+    audioComOut = multiprocessing.Queue() # audio comm out
     
-    textQ = queue.Queue() # 
+    textQ = multiprocessing.Queue() # 
     
-    transComIn = queue.Queue()
-    transComOut = queue.Queue()
+    transComIn = multiprocessing.Queue()
+    transComOut = multiprocessing.Queue()
 
     # Starting frontend process
     print("starting frontend process")
-    frontend_process = multiprocessing.Process(target=front_window, args=(frontComIn, frontComOut))
+    #frontend_process = multiprocessing.Process(target=front_window, args=(frontComIn, frontComOut))
+    #frontend_process.start()
 
     # Starting audio listening process
     print("starting audio process")
     audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_id, audiobitQ, audioComIn, audioComOut))
+    audio_listening_process.start()
 
     running = True
 
@@ -50,8 +53,8 @@ def thread_managing():
         
         print("waiting for audio in audio queue")
         frontComIn.put((UPLOG, "Waiting for audio bite to be saved to audiobitQ"))
-        while(audiobitQ.empty and audioComOut.empty):
-            pass
+        while(audiobitQ.empty() and audioComOut.empty()):
+            pass#print(audiobitQ.queue)
         
         # Pull audioClip from queue 
         audioClipFound = audiobitQ.get()
@@ -67,7 +70,7 @@ def thread_managing():
             if textQ.not_empty():
                 transcribedText = textQ.get()
                 # Saving converted text to JSON
-                saveToJSON(convertToJSON(transcribedText))
+                #saveToJSON(convertToJSON(transcribedText))
             
                 print(transcribedText)
                 running = False
@@ -78,8 +81,16 @@ def thread_managing():
         
 
 if __name__ == "__main__":
+
     print("starting thread manager")
     processMain = multiprocessing.Process(target=thread_managing)
     processMain.start()
     processMain.join()
     print("threadmanager finished")
+
+
+
+
+
+
+
