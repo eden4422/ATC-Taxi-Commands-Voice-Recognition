@@ -48,7 +48,7 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
                     resultDict = json.loads(recognizerResult)
                     resultText: str = resultDict["text"]
                     if plane_id in resultText:
-                        print(recognizerResult)
+                        print(resultText)
 
                         audiobitQ.put((audio_data, samplerate))
                         print(audiobitQ)
