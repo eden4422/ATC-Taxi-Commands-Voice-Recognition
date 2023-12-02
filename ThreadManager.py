@@ -6,9 +6,9 @@ import json
 
 # local imports
 from JsonSaving import *
-from CommandTranscription import audio_transcripting
-from AudioListener import audio_listener
-from CommandTranscription import audio_transcriber
+from CommandTranscription import *
+from AudioListening import *
+from CommandTranscription import *
 from QueueKeys import *
 from Frontend import *
 
@@ -38,7 +38,7 @@ def thread_managing():
     frontend_process = multiprocessing.Process(target=front_window, args=(frontComIn, frontComOut))
 
     # Starting audio listening process
-    audio_listening_process = multiprocessing.Process(target=audio_listener, args=(plane_id, audiobitQ, audioComIn, audioComOut))
+    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_id, audiobitQ, audioComIn, audioComOut))
 
     running = True
 

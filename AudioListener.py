@@ -8,11 +8,33 @@ import wave
 
 
 # A class mocking actual functionality of audiolistening, by returning 
-def audiolistening(plane_id, audiobitQ, audioComIn, audioComOut):
+def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
+    listening = True
+    nameHeard = False
+    
+    # TODO : Obstantiate 
+
     while(True):
-        sleep(5)
-        audio = wave.open("testAudio.wav", 'rb')
-        audiobitQ.put(audio)
+        
+        if nameHeard:
+        
+            # TODO : Replace sleep function with listening function
+            sleep(5)
+            # while audioNotQuiet
+
+            # TODO : Replace this line with the audio file parsed from above
+            audio = wave.open("testAudio.wav", 'rb')
+            
+            audiobitQ.put(audio)
+            nameHeard = False
+        else:
+
+            sleep(5)
+            nameHeard = True
+            # TODO : listen for name to be called
+
+
+
 
 '''This script processes audio input from the microphone and displays the transcribed text.'''
 # get the samplerate - this is needed by the Kaldi recognizer
