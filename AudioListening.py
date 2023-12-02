@@ -6,8 +6,6 @@ import json
 from time import sleep
 import wave
 
-
-
 # A class mocking actual functionality of audiolistening, by returning 
 def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
     listening = True

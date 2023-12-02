@@ -35,9 +35,11 @@ def thread_managing():
     transComOut = queue.Queue()
 
     # Starting frontend process
+    print("starting frontend process")
     frontend_process = multiprocessing.Process(target=front_window, args=(frontComIn, frontComOut))
 
     # Starting audio listening process
+    print("starting audio process")
     audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_id, audiobitQ, audioComIn, audioComOut))
 
     running = True
@@ -46,36 +48,38 @@ def thread_managing():
 
         # Wait idly while audioClipQueue is empty (waiting for task 2 to finish)
         
+        print("waiting for audio in audio queue")
         frontComIn.put((UPLOG, "Waiting for audio bite to be saved to audiobitQ"))
         while(audiobitQ.empty and audioComOut.empty):
-            #
-            
             pass
-
-
-
+        
         # Pull audioClip from queue 
         audioClipFound = audiobitQ.get()
 
         # Start audio transcribing process using audioclip and wait for results
-        audio_transcribing_process = multiprocessing.Process(target=audio_transcriber, args=(audioClipFound, textQ, errorQ))
+        
+        audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(audioClipFound, textQ, transComIn, transComOut))
         audio_transcribing_process.start()
         audio_transcribing_process.join()
 
         # Getting transcribed text from queue
-
-        if textQ.not_empty() and transComOut:
-            transcribedText = textQ.get()
-            # Saving converted text to JSON
-            saveToJSON(convertToJSON(transcribedText))
+        while transComOut.not_empty and textQ.not_empty:
+            if textQ.not_empty():
+                transcribedText = textQ.get()
+                # Saving converted text to JSON
+                saveToJSON(convertToJSON(transcribedText))
+            
+                print(transcribedText)
+                running = False
         
-        else:
-            frontQ.put((UPERROR,""))
+            else:
+                textQ.get()
+                frontComIn.put((UPERROR,""))
         
 
-if __name__ == "main":
+if __name__ == "__main__":
+    print("starting thread manager")
     processMain = multiprocessing.Process(target=thread_managing)
     processMain.start()
     processMain.join()
-
-
+    print("threadmanager finished")

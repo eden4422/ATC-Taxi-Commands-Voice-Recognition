@@ -8,7 +8,7 @@ from ModelTwo import model_two
 from ModelThree import model_three
 
 
-def audio_transcriber(input_audio,text_queue, error_queue):
+def transcribe_audio(input_audio,text_queue, error_queue):
     
     # creating queue for output text
     outputTextQ = queue.Queue()
