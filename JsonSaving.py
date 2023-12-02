@@ -9,6 +9,12 @@ def read_from_json():
 def convert_to_json(text: str):
     pass
 
+def cut_before_begin(text: str):
+    pass
+
+def cut_after_end(text: str):
+    pass
+
 
 
 
