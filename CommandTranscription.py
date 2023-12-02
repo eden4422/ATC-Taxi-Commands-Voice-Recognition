@@ -8,10 +8,11 @@ from ModelTwo import model_two
 from ModelThree import model_three
 
 
-def transcribe_audio(input_audio,text_queue, error_queue):
+def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
     
     # creating queue for output text
-    outputTextQ = queue.Queue()
+    outputTextQ = multiprocessing.Queue()
+    error_queue = multiprocessing.Queue()
     
     # creating three model processes 
     model_process_One = multiprocessing.Process(target=model_one, args=(input_audio, outputTextQ, error_queue))
