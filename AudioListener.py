@@ -3,6 +3,16 @@ import sounddevice as sd
 from vosk import Model, KaldiRecognizer
 import sys
 import json
+from time import sleep
+import wave
+
+
+# A class mocking actual functionality of audiolistening, by returning 
+def audiolistening(plane_id, audiobitQ, audioComIn, audioComOut):
+    while(True):
+        sleep(5)
+        audio = wave.open("testAudio.wav", 'rb')
+        audiobitQ.put(audio)
 
 '''This script processes audio input from the microphone and displays the transcribed text.'''
 # get the samplerate - this is needed by the Kaldi recognizer
