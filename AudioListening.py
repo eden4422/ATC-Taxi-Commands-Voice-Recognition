@@ -8,7 +8,8 @@ import wave
 import multiprocessing
 import queue
 import io
-
+import os
+import tempfile
 
 # A class mocking actual functionality of audiolistening, by returning 
 def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
@@ -41,16 +42,28 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
     try:
         with sd.RawInputStream(dtype='int16', channels=1, callback=recordCallback):
             while True:
-                audio_data = q.get()        
+                audio_data = q.get()
                 if recognizer.AcceptWaveform(audio_data):
                     recognizerResult = recognizer.Result()
-                    # convert the recognizerResult string into a dictionary  
+                    # convert the recognizerResult string into a dictionary
                     resultDict = json.loads(recognizerResult)
                     resultText: str = resultDict["text"]
                     if plane_id in resultText:
                         print(resultText)
 
-                        audiobitQ.put((audio_data, samplerate))
+                        # Save audio as WAV file
+                        save_wav_filename = os.path.join("AudioRecordings", f"{plane_id}_recording.wav")
+
+                        os.makedirs(os.path.dirname(save_wav_filename), exist_ok=True)
+
+                        with wave.open(save_wav_filename, 'wb') as wav_file:
+                            wav_file.setnchannels(1)  # Mono
+                            wav_file.setsampwidth(2)  # 2 bytes per sample
+                            wav_file.setframerate(samplerate)
+                            wav_file.writeframes(audio_data)
+
+                        audiobitQ.put(save_wav_filename)
+
                         print(audiobitQ)
                     else:
                         print("no input sound")
@@ -63,12 +76,21 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
 
 
 def save_as_wav(audio_data, samplerate):
-    wav_buffer = io.BytesIO()
+    # Create a temporary WAV file
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_wav_file:
+        temp_wav_filename = temp_wav_file.name
 
-    with wave.open(wav_buffer, 'wb') as wave_file:
-        wave_file.setnchannels(1)  # Mono
-        wave_file.setsampwidth(2)  # 2 bytes per sample
-        wave_file.setframerate(samplerate)
-        wave_file.writeframes(audio_data)
+        with wave.open(temp_wav_filename, 'wb') as wave_file:
+            wave_file.setnchannels(1)  # Mono
+            wave_file.setsampwidth(2)  # 2 bytes per sample
+            wave_file.setframerate(samplerate)
+            wave_file.writeframes(audio_data)
 
-    return wav_buffer.getvalue()
+        # Read the contents of the temporary file into a buffer
+        with open(temp_wav_filename, 'rb') as temp_file:
+            wav_buffer = temp_file.read()
+
+    # Delete the temporary WAV file
+    os.remove(temp_wav_filename)
+
+    return wav_buffer

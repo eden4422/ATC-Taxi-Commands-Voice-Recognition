@@ -4,20 +4,20 @@ import wave
 import json
 import multiprocessing
 import io
-import wave
 
-def trans_model(input_audio: tuple, model_link, output_text_queue, error_queue):
+def trans_model(wav_file_path, model_link, output_text_queue, error_queue):
     try:
         model = Model(model_link)
         
-        audio_data = input_audio[0]
-        framerate = input_audio[1]
+
+        with wave.open(wav_file_path, 'rb') as audio_file:
+            sample_rate = audio_file.getframerate()
+            audio_data = audio_file.readframes(audio_file.getnframes())
 
         print("modeloutput:")
         print(audio_data)
-        print(framerate)
 
-        recognizer = KaldiRecognizer(model, framerate)
+        recognizer = KaldiRecognizer(model, sample_rate)
         print(1)
         recognizer.SetWords(False)
         print(2)
@@ -44,9 +44,6 @@ def trans_model(input_audio: tuple, model_link, output_text_queue, error_queue):
     except Exception as e:
         print(f"Error in model_one: {e}")
 
-def main():
-    pass
-
 if __name__ == "__main__":
     audio_file_path = 'testaudio.wav'
     sample_rate: int
@@ -60,4 +57,9 @@ if __name__ == "__main__":
     outQ = Queue()
     errQ = Queue()
 
-    trans_model((audio_data,sample_rate),"vosk-model-small-en-us-0.15",outQ,errQ)
+    test_process = multiprocessing.Process(trans_model,args=(audio_file_path,"vosk-model-small-en-us-0.15",outQ,errQ))
+    test_process.start()
+    #trans_model((audio_data,sample_rate),"vosk-model-small-en-us-0.15",outQ,errQ)
+
+
+
