@@ -2,46 +2,40 @@ from vosk import Model, KaldiRecognizer
 from queue import Queue 
 import wave
 import json
+import multiprocessing
 
-def model_one(input_audio_Q, output_text_queue, com_in, com_out):
+def trans_model(input_audio: tuple, model_link, output_text_queue, error_queue):
     try:
-        model = Model("vosk-model-small-en-us-0.15")
-        print(1)
+        model = Model(model_link)
+        
+        audio_data = input_audio[0]
+        framerate = input_audio[1]
 
-        audio = input_audio_Q.get()
-        print(2)
-
-        data = audio.readframes(audio.getnframes())
-        print(3)
-
-        recognizer = KaldiRecognizer(model, audio.getframerate())
-        recognizer.AcceptWaveform(data)  # Accept the entire waveform
-        print(4)
-
+        recognizer = KaldiRecognizer(model, framerate)
+        recognizer.SetWords(False)
+        recognizer.AcceptWaveform(audio_data)  # Accept the entire waveform
+        
         result: dict = json.loads(recognizer.Result())
-        print(5)
 
         output_text: str = result["text"]
         
-
         output_text_queue.put(output_text)
-        print(6)
 
     except Exception as e:
         print(f"Error in model_one: {e}")
 
+# Test script for individual testing
 if __name__ == "__main__":
-    com_inQ = Queue()
-    com_outQ = Queue()
-    outputQ = Queue()
+    com_inQ = multiprocessing.Queue()
+    com_outQ = multiprocessing.Queue()
+    outputQ = multiprocessing.Queue()
 
     audio = wave.open("testAudio.wav", 'rb')  # Note the 'rb' mode to open the WAV file in binary mode
-    audioQ = Queue()
+    audioQ = multiprocessing.Queue()
     audioQ.put(audio)
-    print(audioQ)
 
     try:
-        model_one(audioQ, outputQ, com_inQ, com_outQ)
+        trans_model(audioQ, outputQ, com_inQ, com_outQ)
     except Exception as e:
         print(f"Error in __main__: {e}")
 

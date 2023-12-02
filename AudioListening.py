@@ -41,16 +41,16 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
     try:
         with sd.RawInputStream(dtype='int16', channels=1, callback=recordCallback):
             while True:
-                data = q.get()        
-                if recognizer.AcceptWaveform(data):
+                audio_data = q.get()        
+                if recognizer.AcceptWaveform(audio_data):
                     recognizerResult = recognizer.Result()
                     # convert the recognizerResult string into a dictionary  
                     resultDict = json.loads(recognizerResult)
                     resultText: str = resultDict["text"]
-                    if "start" in resultText:
+                    if plane_id in resultText:
                         print(recognizerResult)
-                        wav_data = save_as_wav(data, samplerate)
-                        audiobitQ.put(wav_data)
+
+                        audiobitQ.put((audio_data, samplerate))
                         print(audiobitQ)
                     else:
                         print("no input sound")

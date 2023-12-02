@@ -3,36 +3,40 @@ import multiprocessing
 import queue
 
 # local imports
-from ModelOne import model_one
-from ModelTwo import model_two
-from ModelThree import model_three
+from Model import trans_model
 
 
 def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
-    
+    print("transcribing begin")
+    model_link_one = "vosk-model-small-en-us-0.15"
+    model_link_two = "vosk-model-small-en-us-0.15"
+    model_link_three = "vosk-model-small-en-us-0.15"
+
     # creating queue for output text
     outputTextQ = multiprocessing.Queue()
     error_queue = multiprocessing.Queue()
-    
+
+
     # creating three model processes 
-    model_process_One = multiprocessing.Process(target=model_one, args=(input_audio, outputTextQ, error_queue))
-    model_process_two = multiprocessing.Process(target=model_two, args=(input_audio, outputTextQ, error_queue))
-    model_process_three = multiprocessing.Process(target=model_three, args=(input_audio, outputTextQ, error_queue))
+    model_process_one = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_one, outputTextQ, error_queue))
+    model_process_two = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_two, outputTextQ, error_queue))
+    model_process_three = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_three, outputTextQ, error_queue))
 
     # start all three processes
-    model_process_One.start()
-    model_process_One.start()
-    model_process_One.start()
+    model_process_one.start()
+    model_process_two.start()
+    model_process_three.start()
 
+    print("started processes\n\n\n\n\n\n\n")
     # sleep until all three processes complete
-    model_process_One.join()
-    model_process_One.join()
-    model_process_One.join()
-
+    model_process_one.join()
+    model_process_two.join()
+    model_process_three.join()
+    print("processes ended")
     # adding results to list
     results: list = []
 
-    while(outputTextQ.not_empty()):
+    while not outputTextQ.empty():
         results.append(outputTextQ.get())
 
     # checking list for if we have sufficient agreement
