@@ -4,6 +4,7 @@ import threading
 from datetime import datetime
 import queue
 import json
+import wave
 
 # local imports
 from JsonSaving import *
@@ -16,9 +17,9 @@ from Frontend import *
 
 # main task that handles
 def thread_managing():
-
+    
     # Temp variable for airplane identifier
-    plane_id = "JOHNNY"
+    plane_id = "start"
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
@@ -58,27 +59,31 @@ def thread_managing():
         
         # Pull audioClip from queue 
         audioClipFound = audiobitQ.get()
+        print(audioClipFound)
+        
 
         # Start audio transcribing process using audioclip and wait for results
         
         audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(audioClipFound, textQ, transComIn, transComOut))
         audio_transcribing_process.start()
         audio_transcribing_process.join()
+        print("transcriber process finished")
 
-        # Getting transcribed text from queue
-        while transComOut.not_empty and textQ.not_empty:
-            if textQ.not_empty():
-                transcribedText = textQ.get()
-                # Saving converted text to JSON
-                #saveToJSON(convertToJSON(transcribedText))
-            
-                print(transcribedText)
-                running = False
+        transcribedText = textQ.get()
+
+        print("transcribedtext:")
+        print(transcribedText)
+
+
+        save_to_json(convert_to_json)
+
+
+
+        save_to_json()
         
-            else:
-                textQ.get()
-                frontComIn.put((UPERROR,""))
         
+
+
 
 if __name__ == "__main__":
 

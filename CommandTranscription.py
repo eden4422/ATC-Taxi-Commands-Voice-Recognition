@@ -33,12 +33,15 @@ def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
     model_process_two.join()
     model_process_three.join()
     print("processes ended")
+    
     # adding results to list
     results: list = []
 
     while not outputTextQ.empty():
         results.append(outputTextQ.get())
-
+    
+    print(results)
+    
     # checking list for if we have sufficient agreement
     testsPass = False
     testPassed = None
@@ -53,6 +56,8 @@ def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
             decision_counts[result] = 1
         else:
             decision_counts[result] += 1
+            
+    print(decision_counts)
 
     # Check for at least 2 out of 3 agreement
     for result, count in decision_counts.items():
