@@ -4,6 +4,7 @@ import wave
 import json
 import multiprocessing
 import io
+import wave
 
 def trans_model(input_audio: tuple, model_link, output_text_queue, error_queue):
     try:
@@ -12,13 +13,29 @@ def trans_model(input_audio: tuple, model_link, output_text_queue, error_queue):
         audio_data = input_audio[0]
         framerate = input_audio[1]
 
+        print("modeloutput:")
+        print(audio_data)
+        print(framerate)
+
         recognizer = KaldiRecognizer(model, framerate)
+        print(1)
         recognizer.SetWords(False)
+        print(2)
         recognizer.AcceptWaveform(audio_data)  # Accept the entire waveform
         
-        result: dict = json.loads(recognizer.Result())
+        print(3)
+        result = recognizer.Result()
+        print(result)
+        resultDict: dict = json.loads(result)
+        print(resultDict)
+        resultText: str = resultDict["text"]
+        print(resultText)
+        
+        output_text: str = resultDict['text']
+        print(result)
+        print(resultDict)
+        print(resultText)
 
-        output_text: str = result["text"]
         print("modeloutput:")
         print(output_text)
 
@@ -28,40 +45,19 @@ def trans_model(input_audio: tuple, model_link, output_text_queue, error_queue):
         print(f"Error in model_one: {e}")
 
 def main():
-    try:
-        # Read audio file
-        audio_file_path = 'testAudio.wav'
-        with wave.open(audio_file_path, 'rb') as wf:
-            framerate = wf.getframerate()
-            audio_data = wf.readframes(wf.getnframes())
-
-        # Create queues for communication between processes
-        output_text_queue = Queue()
-        error_queue = Queue()
-
-        # Replace 'your_model_link_here' with the actual link to your model
-        model_link = 'your_model_link_here'
-
-        # Create a tuple containing audio data and framerate
-        input_audio = (audio_data, framerate)
-
-        # Call the trans_model function in a separate process
-        process = multiprocessing.Process(target=trans_model, args=(input_audio, model_link, output_text_queue, error_queue))
-        process.start()
-        process.join()
-
-        # Retrieve results from the queues
-        output_text = output_text_queue.get()
-        error_message = error_queue.get()
-
-        if error_message:
-            print(f"Error: {error_message}")
-        else:
-            print("Main function output:")
-            print(output_text)
-
-    except Exception as e:
-        print(f"Error in main: {e}")
+    pass
 
 if __name__ == "__main__":
-    main()
+    audio_file_path = 'testaudio.wav'
+    sample_rate: int
+    audio_data: str
+
+    # Read the audio file as binary data
+    with wave.open(audio_file_path, 'rb') as audio_file:
+        sample_rate = audio_file.getframerate()
+        audio_data = audio_file.readframes(audio_file.getnframes())
+
+    outQ = Queue()
+    errQ = Queue()
+
+    trans_model((audio_data,sample_rate),"vosk-model-small-en-us-0.15",outQ,errQ)

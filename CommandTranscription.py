@@ -17,6 +17,7 @@ def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
     error_queue = multiprocessing.Queue()
 
 
+
     # creating three model processes 
     model_process_one = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_one, outputTextQ, error_queue))
     model_process_two = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_two, outputTextQ, error_queue))
@@ -56,7 +57,7 @@ def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
             decision_counts[result] = 1
         else:
             decision_counts[result] += 1
-            
+
     print(decision_counts)
 
     # Check for at least 2 out of 3 agreement
