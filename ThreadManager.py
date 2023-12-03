@@ -19,7 +19,7 @@ from Frontend import *
 def thread_managing():
     
     # Temp variable for airplane identifier
-    plane_id = "start"
+    plane_ids = ["delta one two three"]
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
@@ -43,7 +43,7 @@ def thread_managing():
 
     # Starting audio listening process
     print("starting audio process")
-    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_id, audiobitQ, audioComIn, audioComOut))
+    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, audiobitQ, audioComIn, audioComOut))
     audio_listening_process.start()
 
     running = True
@@ -75,11 +75,8 @@ def thread_managing():
         print(transcribedText)
 
 
-        save_to_json(convert_to_json)
-
-
-
-        save_to_json()
+        save_to_json(convert_to_json(transcribedText))
+        print(43)
         
         
 

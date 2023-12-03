@@ -9,7 +9,7 @@ import multiprocessing
 import queue
 
 # A class mocking actual functionality of audiolistening, by returning 
-def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
+def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
 
     flight_IDs = ["delta one two three", "united six seven eight"]
     fileNum = 0
@@ -32,7 +32,7 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
     print("===> Build the model and recognizer objects.  This will take a few minutes.")
     model = Model("vosk-model-small-en-us-0.15")
     recognizer = KaldiRecognizer(model, samplerate)
-    recognizer.SetWords(False)
+    recognizer.SetWords(True)
 
     desired_duration = 40  #10 = 5 seconds
     frame_limit = int(samplerate * desired_duration)
@@ -53,25 +53,29 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
                     # convert the recognizerResult string into a dictionary
                     resultDict = json.loads(recognizerResult)
                     resultText: str = resultDict["text"]
+                    resultTimeList: list = resultDict["result"]
+                    print(resultDict)
                     print(resultText)
-                    for ID in flight_IDs:
-                        if ID in resultText:
-                            print(resultText)
 
-                            # Save the accumulated audio data to a WAV file
-                            with wave.open(f'output{fileNum}.wav', 'w') as wf:
-                                wf.setnchannels(1)
-                                wf.setsampwidth(2)
-                                wf.setframerate(samplerate)
-                                wf.writeframes(recording_data[-frame_limit:])
-                                fileNum += 1
-                                if fileNum == 100:
-                                    fileNum = 0
-                                
-                            recording_data = b''  # Reset accumulated audio data
+                    if any(ID in resultText for ID in flight_IDs):
 
-                        else:
-                            print("no input sound")
+                        # Save the accumulated audio data to a WAV file
+                        with wave.open(f'output{fileNum}.wav', 'w') as wf:
+                            wf.setnchannels(1)
+                            wf.setsampwidth(2)
+                            wf.setframerate(samplerate)
+                            wf.writeframes(recording_data[-frame_limit:])
+                            fileNum += 1
+                            if fileNum == 100:
+                                fileNum = 0
+                            
+                        audiobitQ.put((recording_data,samplerate))
+
+                        recording_data = b''  # Reset accumulated audio data
+
+                    else:
+                        recording_data = b''
+                        print("no input sound")
 
     except KeyboardInterrupt:
         print('===> Finished Recording')
