@@ -48,9 +48,10 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
                     # convert the recognizerResult string into a dictionary
                     resultDict = json.loads(recognizerResult)
                     resultText: str = resultDict["text"]
-                    if plane_id in resultText:
+                    print(resultText)
+                    if resultText.startswith("banana"):
                         print(resultText)
-
+                        print(audio_data)
                         # Save audio as WAV file
                         save_wav_filename = os.path.join("AudioRecordings", f"{plane_id}_recording.wav")
 
@@ -63,8 +64,6 @@ def listen_for_audio(plane_id, audiobitQ, audioComIn, audioComOut):
                             wav_file.writeframes(audio_data)
 
                         audiobitQ.put(save_wav_filename)
-
-                        print(audiobitQ)
                     else:
                         print("no input sound")
 
