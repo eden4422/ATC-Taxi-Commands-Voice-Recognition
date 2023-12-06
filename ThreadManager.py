@@ -19,7 +19,7 @@ from Frontend import *
 def thread_managing():
     
     # Temp variable for airplane identifier
-    plane_ids = ["delta one two three"]
+    plane_ids = ["delta one two three", "united six seven eight"]
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
@@ -53,14 +53,11 @@ def thread_managing():
         # Wait idly while audioClipQueue is empty (waiting for task 2 to finish)
         
         print("waiting for audio in audio queue")
-        frontComIn.put((UPLOG, "Waiting for audio bite to be saved to audiobitQ"))
         while(audiobitQ.empty() and audioComOut.empty()):
             pass#print(audiobitQ.queue)
         
         # Pull audioClip from queue 
         audioClipFound = audiobitQ.get()
-        print(audioClipFound)
-        
 
         # Start audio transcribing process using audioclip and wait for results
         

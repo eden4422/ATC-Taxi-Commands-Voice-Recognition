@@ -13,15 +13,15 @@ def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
     model_link_three = "vosk-model-small-en-us-0.15"
 
     # creating queue for output text
-    outputTextQ = multiprocessing.Queue()
+    output_text = multiprocessing.Queue()
     error_queue = multiprocessing.Queue()
 
 
 
     # creating three model processes 
-    model_process_one = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_one, outputTextQ, error_queue))
-    model_process_two = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_two, outputTextQ, error_queue))
-    model_process_three = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_three, outputTextQ, error_queue))
+    model_process_one = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_one, output_text, error_queue))
+    model_process_two = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_two, output_text, error_queue))
+    model_process_three = multiprocessing.Process(target=trans_model, args=(input_audio, model_link_three, output_text, error_queue))
 
     # start all three processes
     model_process_one.start()
@@ -38,14 +38,14 @@ def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
     # adding results to list
     results: list = []
 
-    while not outputTextQ.empty():
-        results.append(outputTextQ.get())
+    while not output_text.empty():
+        results.append(output_text.get())
     
     print(results)
     
     # checking list for if we have sufficient agreement
-    testsPass = False
-    testPassed = None
+    tests_pass = False
+    test_passed = None
 
     if len(results) != 3:
         raise ValueError("There must be exactly 3 results for the decision.")
@@ -63,10 +63,12 @@ def transcribe_audio(input_audio,text_queue, com_in_queue,com_out_queue):
     # Check for at least 2 out of 3 agreement
     for result, count in decision_counts.items():
         if count >= 2:
-            testsPass = True
-            testPassed = result
+            tests_pass = True
+            test_passed = result
 
     # Putting translated test on textQ
-    if testsPass == True and testPassed != None:
-        text_queue.put(testPassed)
+    if tests_pass == True and test_passed != None:
+        text_queue.put(test_passed)
 
+    # Delta one two three this is ground control please head to runway 33 taxi via Delta Bravo Zulu
+    # D123 33 D B Z

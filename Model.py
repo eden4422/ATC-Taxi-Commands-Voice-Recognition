@@ -25,19 +25,13 @@ def trans_model(audio_tuple, model_link, output_text_queue, error_queue):
         print(3)
         
         result = recognizer.Result()
-        print(result)
         
-        resultDict: dict = json.loads(result)
-        print(resultDict)
-
-        resultText: str = resultDict["text"]
-        print(resultText)
+        result_dict: dict = json.loads(result)
         
-        output_text: str = resultDict['text']
-        print(result)
+        output_text: str = result_dict['text']
 
-        print(resultDict)
-        print(resultText)
+        print(result)
+        print(result_dict)
 
         print("modeloutput:")
         print(output_text)

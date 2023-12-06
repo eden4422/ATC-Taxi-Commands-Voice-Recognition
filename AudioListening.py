@@ -10,8 +10,7 @@ import queue
 
 # A class mocking actual functionality of audiolistening, by returning 
 def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
-
-    flight_IDs = ["delta one two three", "united six seven eight"]
+    
     fileNum = 0
     # get the samplerate - this is needed by the Kaldi recognizer
     device_info = sd.query_devices(sd.default.device[0], 'input')
@@ -53,7 +52,6 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                     # convert the recognizerResult string into a dictionary
                     resultDict = json.loads(recognizerResult)
                     resultText: str = resultDict["text"]
-                    resultTimeList: list = resultDict["result"]
                     print(resultDict)
                     print(resultText)
 
