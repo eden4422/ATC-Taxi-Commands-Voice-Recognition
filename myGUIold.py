@@ -14,9 +14,9 @@ containingFrame = tkinter.Frame(master=window)
 topFrame = tkinter.Frame(master=containingFrame)
 bottomFrame = tkinter.Frame(master=containingFrame)
 speechBoxFrame = tkinter.Frame(master=topFrame)
-speechBoxLabel = tkinter.Label(master=speechBoxFrame, text="All Speech")
+speechBoxLabel = tkinter.Label(master=speechBoxFrame, text="Commands")
 commandsBoxFrame = tkinter.Frame(master=topFrame)
-commandsBoxLabel = tkinter.Label(master=commandsBoxFrame, text="Commands")
+commandsBoxLabel = tkinter.Label(master=commandsBoxFrame, text="All Speech")
 allSpeechBox = tkinter.Text(master=speechBoxFrame, width=40, height=25, borderwidth=1, relief="raised")
 commandsBox = tkinter.Text(master=commandsBoxFrame, width=40, height=25, borderwidth=1, relief="raised")
 muteButton = tkinter.Button(master=bottomFrame, text="Unmute", width = 6)
@@ -66,43 +66,12 @@ muteButton.bind("<Button-1>", handleMuteClick)
 #         #executing doThing() after two seconds (2000ms). This functionality can be used for checking the JSON for updates if you don't
 #         #want to check every window loop. This example just has it up the number in the label by 2 every two seconds.
 #         self.myLabel.after(2000, self.doThing)
+
 # # make your timer, tell it to do the thing.
 # timer = Timing(myLabel)
 # timer.doThing()
 #--------------------------------------------------------------------------------------------------------------------------------------
 
-class functionality:
-    def __init__(self, window, cBox, aBox, eBox):
-        self.window = window
-        self.cBox = cBox
-        self.aBox = aBox
-        self.eBox = eBox
-        self.counter = 1
-    def doFunctionality(self):
-        # this is where we route to specific functionality
-        self.checkDoCommandUpdate()
-        self.checkDoAllSpeechUpdate()
-        self.checkDoErrorUpdate()
-        self.window.after(1000, self.doFunctionality)
-        
-    def checkDoCommandUpdate(self):
-        #example of updating. Instead of doing a counter, check the JSON
-        self.cBox.config(state="normal")
-        self.cBox.delete("1.0", tkinter.END)
-        self.counter = self.counter + 1
-        self.cBox.insert(tkinter.END, self.counter)
-        self.cBox.config(state="disabled")
-
-    def checkDoAllSpeechUpdate(self):
-        pass
-
-    def checkDoErrorUpdate(self):
-        pass
-
-        
-
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
-doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
-doFunct.doFunctionality()
 window.mainloop()
