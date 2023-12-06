@@ -103,6 +103,17 @@ class functionality:
 
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
-doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
-doFunct.doFunctionality()
-window.mainloop()
+
+def getGoing():
+    commandsBox.config(state="disabled")
+    allSpeechBox.config(state="disabled")
+    errorBox.config(state="disabled")
+    doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
+    doFunct.doFunctionality()
+    window.mainloop()
+
+#getGoing()
+
+# doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
+# doFunct.doFunctionality()
+# window.mainloop()
