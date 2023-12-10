@@ -122,7 +122,7 @@ class functionality:
         #     myFile = open('testyText.txt', "r")
         #     fileContents = myFile.read()
         # change so instead of deleting it just adds the thing
-        #     self.cBox.delete("1.0", tkinter.END)
+        ##     self.cBox.delete("1.0", tkinter.END)
         #     self.cBox.insert(tkinter.END, fileContents)
         #     myFile.close()
         # self.cBox.config(state="disabled")
@@ -148,7 +148,7 @@ def getGoing(inyago, outyago):
     doFunct.doFunctionality()
     window.mainloop()
 
-# queue has a tuple with the type of thing and the actual stuff in teh second element
+# queue has a tuple with the type of thing and the actual stuff in the second element
 # 
 
 #getGoing()

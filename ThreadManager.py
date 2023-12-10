@@ -14,6 +14,7 @@ from CommandTranscription import *
 from QueueKeys import *
 from Frontend import *
 from myGUI import *
+from commands import *
 
 
 # main task that handles
@@ -61,8 +62,8 @@ def thread_managing():
             elif not audioComOut.empty():
                 output = audioComOut.get()
                 
-                if output[0] == "frontoutput":
-                    frontComIn.put(("update",output[1]))
+                if output[0] == "ALLSPEECH":
+                    frontComIn.put((updateAllSpeechB,output[1]))
                     print(output)
             
 
