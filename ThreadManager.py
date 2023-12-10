@@ -62,7 +62,7 @@ def thread_managing():
             elif not audioComOut.empty():
                 output = audioComOut.get()
                 
-                if output[0] == "ALLSPEECH":
+                if output[0] == "allAudio":
                     frontComIn.put((updateAllSpeechB,output[1]))
                     print(output)
             
@@ -87,9 +87,6 @@ def thread_managing():
         save_to_json(convert_to_json(transcribedText))
         print(43)
         
-        
-
-
 
 if __name__ == "__main__":
 
@@ -98,10 +95,3 @@ if __name__ == "__main__":
     processMain.start()
     processMain.join()
     print("threadmanager finished")
-
-
-
-
-
-
-
