@@ -62,7 +62,7 @@ def thread_managing():
             elif not audioComOut.empty():
                 output = audioComOut.get()
                 
-                if output[0] == "ALLSPEECH":
+                if output[0] == "allAudio":
                     frontComIn.put((updateAllSpeechB,output[1]))
                     print(output)
             
