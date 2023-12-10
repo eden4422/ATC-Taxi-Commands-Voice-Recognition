@@ -13,6 +13,7 @@ from AudioListening import *
 from CommandTranscription import *
 from QueueKeys import *
 from Frontend import *
+from myGUI import *
 
 
 # main task that handles
@@ -38,8 +39,8 @@ def thread_managing():
 
     # Starting frontend process
     print("starting frontend process")
-    #frontend_process = multiprocessing.Process(target=front_window, args=(frontComIn, frontComOut))
-    #frontend_process.start()
+    frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut))
+    frontend_process.start()
 
     # Starting audio listening process
     print("starting audio process")
@@ -59,8 +60,10 @@ def thread_managing():
                 break
             elif not audioComOut.empty():
                 output = audioComOut.get()
-                frontComIn.put(output)
-                print(output)
+                
+                if output[0] == "frontoutput":
+                    frontComIn.put(("update",output[1]))
+                    print(output)
             
 
 
