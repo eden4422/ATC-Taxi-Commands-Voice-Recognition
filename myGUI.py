@@ -4,8 +4,6 @@ import os
 import multiprocessing
 import commands
 
-queueIn = multiprocessing.Queue()
-queueOut = multiprocessing.Queue()
 # For a lot of this, reference this page on stackexchange: https://stackoverflow.com/questions/29158220/tkinter-understanding-mainloop
 # also this one for general tkinter stuff https://realpython.com/python-gui-tkinter/
 
@@ -86,6 +84,9 @@ endButton.bind("Button-1>", handleEndClick)
 # timer.doThing()
 #--------------------------------------------------------------------------------------------------------------------------------------
 
+queueIn = multiprocessing.Queue()
+queueOut = multiprocessing.Queue()
+
 class functionality:
     prevTime = 0
     currTime = 1
@@ -100,8 +101,9 @@ class functionality:
         self.checkDoCommandUpdate()
         #self.checkDoAllSpeechUpdate()
         #self.checkDoErrorUpdate()
-        while not queueIn.empty:
+        while not queueIn.empty():
             commandToDo = queueIn.get()
+            print(commandToDo[0])
             if commandToDo[0] == 1:
                 self.checkDoErrorUpdate(commandToDo)
             elif commandToDo[0] == 2:
@@ -151,6 +153,8 @@ class functionality:
 #all other stuff goes here, above the main loop.
 
 def getGoing(inyago, outyago):
+    global queueIn
+    global queueOut
     queueIn = inyago
     queueOut = outyago
     commandsBox.config(state="disabled")
