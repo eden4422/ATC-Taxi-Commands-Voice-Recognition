@@ -12,7 +12,6 @@ from CommandTranscription import *
 from AudioListening import *
 from CommandTranscription import *
 from QueueKeys import *
-from Frontend import *
 from myGUI import *
 from commands import *
 
