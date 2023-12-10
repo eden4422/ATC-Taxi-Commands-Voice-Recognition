@@ -2,6 +2,9 @@ import tkinter
 import time
 import os
 import multiprocessing
+
+queueIn = multiprocessing.Queue()
+queueOut = multiprocessing.Queue()
 # For a lot of this, reference this page on stackexchange: https://stackoverflow.com/questions/29158220/tkinter-understanding-mainloop
 # also this one for general tkinter stuff https://realpython.com/python-gui-tkinter/
 
@@ -135,7 +138,9 @@ class functionality:
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
 
-def getGoing(queueIn, queueOut):
+def getGoing(inyago, outyago):
+    queueIn = inyago
+    queueOut = outyago
     commandsBox.config(state="disabled")
     allSpeechBox.config(state="disabled")
     errorBox.config(state="disabled")
