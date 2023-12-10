@@ -135,10 +135,15 @@ class functionality:
         # self.cBox.config(state="disabled")
 
     def checkDoAllSpeechUpdate(self, command):
-        pass
+        # stick them into the text box
+        self.aBox.config(state="normal")
+        self.aBox.insert(tkinter.END, "\n" + command[1])
+        self.aBox.config(state="disabled")
 
     def checkDoErrorUpdate(self, command):
-        pass
+        self.eBox.config(state="normal")
+        self.eBox.insert(tkinter.END, "\n" + command[1])
+        self.eBox.config(state="disabled")
 
         
 
