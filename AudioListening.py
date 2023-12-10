@@ -54,6 +54,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                     resultText: str = resultDict["text"]
                     print(resultDict)
                     print(resultText)
+                    audioComOut.put(("allAudio", resultText))
 
                     if any(ID in resultText for ID in flight_IDs):
 
