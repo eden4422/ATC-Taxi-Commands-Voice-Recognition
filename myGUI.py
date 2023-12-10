@@ -1,7 +1,7 @@
 import tkinter
 import time
 import os
-
+import multiprocessing
 # For a lot of this, reference this page on stackexchange: https://stackoverflow.com/questions/29158220/tkinter-understanding-mainloop
 # also this one for general tkinter stuff https://realpython.com/python-gui-tkinter/
 
@@ -118,6 +118,7 @@ class functionality:
         #     self.prevTime = self.currTime
         #     myFile = open('testyText.txt', "r")
         #     fileContents = myFile.read()
+        # change so instead of deleting it just adds the thing
         #     self.cBox.delete("1.0", tkinter.END)
         #     self.cBox.insert(tkinter.END, fileContents)
         #     myFile.close()
@@ -134,13 +135,16 @@ class functionality:
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
 
-def getGoing():
+def getGoing(queueIn, queueOut):
     commandsBox.config(state="disabled")
     allSpeechBox.config(state="disabled")
     errorBox.config(state="disabled")
     doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
     doFunct.doFunctionality()
     window.mainloop()
+
+# queue has a tuple with the type of thing and the actual stuff in teh second element
+# 
 
 #getGoing()
 
