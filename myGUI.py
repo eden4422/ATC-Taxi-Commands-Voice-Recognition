@@ -2,6 +2,7 @@ import tkinter
 import time
 import os
 import multiprocessing
+import commands
 
 queueIn = multiprocessing.Queue()
 queueOut = multiprocessing.Queue()
@@ -97,9 +98,15 @@ class functionality:
     def doFunctionality(self):
         # this is where we route to specific functionality
         self.checkDoCommandUpdate()
-        self.checkDoAllSpeechUpdate()
-        self.checkDoErrorUpdate()
-        self.window.after(1000, self.doFunctionality)
+        #self.checkDoAllSpeechUpdate()
+        #self.checkDoErrorUpdate()
+        while not queueIn.empty:
+            commandToDo = queueIn.get()
+            if commandToDo[0] == 1:
+                self.checkDoErrorUpdate(commandToDo)
+            elif commandToDo[0] == 2:
+                self.checkDoAllSpeechUpdate(commandToDo)
+        self.window.after(100, self.doFunctionality)
         
     def checkDoCommandUpdate(self):
         #example of updating. Instead of doing a counter, check the JSON
@@ -127,10 +134,10 @@ class functionality:
         #     myFile.close()
         # self.cBox.config(state="disabled")
 
-    def checkDoAllSpeechUpdate(self):
+    def checkDoAllSpeechUpdate(self, command):
         pass
 
-    def checkDoErrorUpdate(self):
+    def checkDoErrorUpdate(self, command):
         pass
 
         
