@@ -2,6 +2,7 @@ import tkinter
 import time
 import os
 import multiprocessing
+import commands
 
 queueIn = multiprocessing.Queue()
 queueOut = multiprocessing.Queue()
@@ -97,9 +98,15 @@ class functionality:
     def doFunctionality(self):
         # this is where we route to specific functionality
         self.checkDoCommandUpdate()
-        self.checkDoAllSpeechUpdate()
-        self.checkDoErrorUpdate()
-        self.window.after(1000, self.doFunctionality)
+        #self.checkDoAllSpeechUpdate()
+        #self.checkDoErrorUpdate()
+        while not queueIn.empty:
+            commandToDo = queueIn.get()
+            if commandToDo[0] == 1:
+                self.checkDoErrorUpdate(commandToDo)
+            elif commandToDo[0] == 2:
+                self.checkDoAllSpeechUpdate(commandToDo)
+        self.window.after(100, self.doFunctionality)
         
     def checkDoCommandUpdate(self):
         #example of updating. Instead of doing a counter, check the JSON
@@ -122,15 +129,15 @@ class functionality:
         #     myFile = open('testyText.txt', "r")
         #     fileContents = myFile.read()
         # change so instead of deleting it just adds the thing
-        #     self.cBox.delete("1.0", tkinter.END)
+        ##     self.cBox.delete("1.0", tkinter.END)
         #     self.cBox.insert(tkinter.END, fileContents)
         #     myFile.close()
         # self.cBox.config(state="disabled")
 
-    def checkDoAllSpeechUpdate(self):
+    def checkDoAllSpeechUpdate(self, command):
         pass
 
-    def checkDoErrorUpdate(self):
+    def checkDoErrorUpdate(self, command):
         pass
 
         
@@ -148,7 +155,7 @@ def getGoing(inyago, outyago):
     doFunct.doFunctionality()
     window.mainloop()
 
-# queue has a tuple with the type of thing and the actual stuff in teh second element
+# queue has a tuple with the type of thing and the actual stuff in the second element
 # 
 
 #getGoing()
