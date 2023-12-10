@@ -26,6 +26,8 @@ commandsBox = tkinter.Text(master=commandsBoxFrame, width=40, height=25, borderw
 muteButton = tkinter.Button(master=bottomFrame, text="Unmute", width = 6)
 startButton = tkinter.Button(master=bottomFrame, text="Start")
 endButton = tkinter.Button(master=bottomFrame, text="End")
+pullRecentButton = tkinter.Button(master=bottomFrame, text="Most Recent")
+pullAllCommandsButton = tkinter.Button(master=bottomFrame, text="All Commands")
 errorBox = tkinter.Text(master=bottomFrame, width=30, height=15, borderwidth=1, relief="raised")
 
 containingFrame.pack(padx=5, pady=5, fill=tkinter.BOTH, expand=True)
@@ -40,6 +42,8 @@ commandsBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 muteButton.pack(side=tkinter.LEFT)
 startButton.pack(side=tkinter.LEFT)
 endButton.pack(side=tkinter.LEFT)
+pullRecentButton.pack(side=tkinter.LEFT)
+pullAllCommandsButton.pack(side=tkinter.LEFT)
 errorBox.pack(side=tkinter.LEFT, fill=tkinter.X, expand=True)
 
 
@@ -49,14 +53,32 @@ def handleMuteClick(event):
     #I assume the easiest thing to do would just be to stop accepting input from the mic, or turn it off
     if muteButton.cget("text") == "Unmute":
         muteButton.config(text="Mute")
+        queueOut.put((1, "Unmuted"))
     else:
         muteButton.config(text="Unmute")
+        queueOut.put((1, "Muted"))
 
 def handleStartClick(event):
-    pass
+    queueOut.put((2, "Start"))
 
 def handleEndClick(event):
-    pass
+    queueOut.put((3, "End"))
+
+def handlePullAll(event):
+    commandsBox.config(state="normal")
+    # do your query here and stick it in the variable
+    textToPut = ""
+    commandsBox.delete("1.0", tkinter.END)
+    commandsBox.insert(tkinter.END, textToPut)
+    commandsBox.config(state="disabled")
+
+def handlePullRecent(event):
+    commandsBox.config(state="normal")
+    # do your query here and stick it in the variable
+    textToPut = ""
+    commandsBox.delete("1.0", tkinter.END)
+    commandsBox.insert(tkinter.END, textToPut)
+    commandsBox.config(state="disabled")
 
 #This is how you bind something. The first argument is the event that you want something to happen on (left click in this case),
 #and the second is what you want to have happen.
