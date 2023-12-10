@@ -53,8 +53,11 @@ def thread_managing():
         # Wait idly while audioClipQueue is empty (waiting for task 2 to finish)
         
         print("waiting for audio in audio queue")
-        while(audiobitQ.empty() and audioComOut.empty()):
-            pass#print(audiobitQ.queue)
+        while(True):
+            if not audiobitQ.empty():
+                break
+            elif not audioComOut.empty():
+                print(audioComOut.get())
         
         # Pull audioClip from queue 
         audioClipFound = audiobitQ.get()
