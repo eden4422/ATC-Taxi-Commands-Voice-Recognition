@@ -3,6 +3,7 @@ import time
 import os
 import multiprocessing
 import commands
+import Mongo_Read_Data
 
 # For a lot of this, reference this page on stackexchange: https://stackoverflow.com/questions/29158220/tkinter-understanding-mainloop
 # also this one for general tkinter stuff https://realpython.com/python-gui-tkinter/
@@ -67,7 +68,7 @@ def handleEndClick(event):
 def handlePullAll(event):
     commandsBox.config(state="normal")
     # do your query here and stick it in the variable
-    textToPut = ""
+    textToPut = Mongo_Read_Data.View_All()
     commandsBox.delete("1.0", tkinter.END)
     commandsBox.insert(tkinter.END, textToPut)
     commandsBox.config(state="disabled")
@@ -75,7 +76,7 @@ def handlePullAll(event):
 def handlePullRecent(event):
     commandsBox.config(state="normal")
     # do your query here and stick it in the variable
-    textToPut = ""
+    textToPut = Mongo_Read_Data.View_Most_Recent()
     commandsBox.delete("1.0", tkinter.END)
     commandsBox.insert(tkinter.END, textToPut)
     commandsBox.config(state="disabled")
