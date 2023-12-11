@@ -123,7 +123,7 @@ class functionality:
         self.counter = 1
     def doFunctionality(self):
         # this is where we route to specific functionality
-        self.checkDoCommandUpdate()
+        #self.checkDoCommandUpdate()
         #self.checkDoAllSpeechUpdate()
         #self.checkDoErrorUpdate()
         while not queueIn.empty():
