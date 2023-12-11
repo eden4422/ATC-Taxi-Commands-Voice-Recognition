@@ -133,6 +133,8 @@ class functionality:
                 self.checkDoErrorUpdate(commandToDo)
             elif commandToDo[0] == 2:
                 self.checkDoAllSpeechUpdate(commandToDo)
+            elif commandToDo[0] == 3:
+                self.checkDoErrorUpdate(commandToDo)
         self.window.after(100, self.doFunctionality)
         
     def checkDoCommandUpdate(self):
@@ -168,6 +170,7 @@ class functionality:
         self.aBox.config(state="disabled")
 
     def checkDoErrorUpdate(self, command):
+        #This is set up to add to the box, if you want to change it to 
         self.eBox.config(state="normal")
         self.eBox.insert(tkinter.END, "\n" + command[1])
         self.eBox.config(state="disabled")

@@ -1,6 +1,7 @@
 # for sending to the GUI
 updateErrorB = 1
 updateAllSpeechB = 2
+updateErrorB = 3
 
 #for messages sent by the GUI
 muteButtonClick = 1
