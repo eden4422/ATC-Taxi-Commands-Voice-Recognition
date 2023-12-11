@@ -20,7 +20,7 @@ with open('commands.txt', 'r') as file:
 # converts dictionary lists to json
 json_commands = json.dumps(taxi_commands, indent=2)
 
-file_path = 'JSON_Taxi_Commands.txt'
+file_path = 'JSON_Taxi_Commands.json'
 
 # writes the data to file 
 with open(file_path, 'w') as file:

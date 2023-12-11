@@ -14,7 +14,7 @@ database = client[database_name]
 collection = database[collection_name]
 
 # reads the data from the json file
-with open("JSON_Taxi_Commands.txt", "r") as file:
+with open("JSON_Taxi_Commands.json", "r") as file:
     data = json.load(file)
 
 # uses collection insert from mongo
