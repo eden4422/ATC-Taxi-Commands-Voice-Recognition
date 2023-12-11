@@ -5,6 +5,8 @@ import multiprocessing
 import commands
 import Mongo_Read_Data
 
+onlyRecentMode = True
+autoUpdateCommand = True
 # For a lot of this, reference this page on stackexchange: https://stackoverflow.com/questions/29158220/tkinter-understanding-mainloop
 # also this one for general tkinter stuff https://realpython.com/python-gui-tkinter/
 
@@ -25,7 +27,8 @@ commandsBoxLabel = tkinter.Label(master=commandsBoxFrame, text="Commands")
 allSpeechBox = tkinter.Text(master=speechBoxFrame, width=40, height=25, borderwidth=1, relief="raised")
 commandsBox = tkinter.Text(master=commandsBoxFrame, width=40, height=25, borderwidth=1, relief="raised")
 muteButton = tkinter.Button(master=bottomFrame, text="Unmute", width = 6)
-startButton = tkinter.Button(master=bottomFrame, text="Start")
+# startButton = tkinter.Button(master=bottomFrame, text="Start")
+autoUpdateCommandButton = tkinter.Button(master=bottomFrame, text="Auto Update: On")
 endButton = tkinter.Button(master=bottomFrame, text="End")
 pullRecentButton = tkinter.Button(master=bottomFrame, text="Most Recent")
 pullAllCommandsButton = tkinter.Button(master=bottomFrame, text="All Commands")
@@ -41,7 +44,8 @@ commandsBoxLabel.pack()
 allSpeechBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 commandsBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 muteButton.pack(side=tkinter.LEFT)
-startButton.pack(side=tkinter.LEFT)
+# startButton.pack(side=tkinter.LEFT)
+autoUpdateCommandButton.pack(side=tkinter.LEFT)
 endButton.pack(side=tkinter.LEFT)
 pullRecentButton.pack(side=tkinter.LEFT)
 pullAllCommandsButton.pack(side=tkinter.LEFT)
@@ -72,6 +76,8 @@ def handlePullAll(event):
     commandsBox.delete("1.0", tkinter.END)
     commandsBox.insert(tkinter.END, textToPut)
     commandsBox.config(state="disabled")
+    global onlyRecentMode
+    onlyRecentMode = False
 
 def handlePullRecent(event):
     commandsBox.config(state="normal")
@@ -80,12 +86,23 @@ def handlePullRecent(event):
     commandsBox.delete("1.0", tkinter.END)
     commandsBox.insert(tkinter.END, textToPut)
     commandsBox.config(state="disabled")
+    global onlyRecentMode
+    onlyRecentMode = True
+
+def handleAutoUpdate(event):
+    if autoUpdateCommand == True:
+        autoUpdateCommand = False
+        autoUpdateCommandButton.config(text="Auto Update: Off")
+    else:
+        autoUpdateCommand = True
+        autoUpdateCommand.config(text="Auto Update: On")
 
 #This is how you bind something. The first argument is the event that you want something to happen on (left click in this case),
 #and the second is what you want to have happen.
 #Please put all your bindings here
 muteButton.bind("<Button-1>", handleMuteClick)
-startButton.bind("<Button-1>", handleStartClick)
+#startButton.bind("<Button-1>", handleStartClick)
+autoUpdateCommandButton.bind("<Button-1>", handleAutoUpdate)
 endButton.bind("<Button-1>", handleEndClick)
 pullAllCommandsButton.bind("<Button-1>", handlePullAll)
 pullRecentButton.bind("<Button-1>", handlePullRecent)
@@ -135,15 +152,18 @@ class functionality:
                 self.checkDoAllSpeechUpdate(commandToDo)
             elif commandToDo[0] == 3:
                 self.checkDoErrorUpdate(commandToDo)
+            elif commandToDo[0] ==4 and autoUpdateCommand:
+                self.checkDoCommandUpdate(commandToDo)
         self.window.after(100, self.doFunctionality)
         
-    def checkDoCommandUpdate(self):
+    def checkDoCommandUpdate(self, commandToDo):
         #example of updating. Instead of doing a counter, check the JSON
-        self.cBox.config(state="normal")
+        # self.cBox.config(state="normal")
         
-        self.cBox.delete("1.0", tkinter.END)
-        self.counter = self.counter + 1
-        self.cBox.insert(tkinter.END, self.counter)
+        # self.cBox.delete("1.0", tkinter.END)
+        # self.counter = self.counter + 1
+        # self.cBox.insert(tkinter.END, self.counter)
+
 
         # This can be used for checking if the commands JSON file has been updated. It'll need the name of the file
         # It checks the modification time of the file, and assigns it to the currTime variable. If currTime does not match
@@ -162,6 +182,21 @@ class functionality:
         #     self.cBox.insert(tkinter.END, fileContents)
         #     myFile.close()
         # self.cBox.config(state="disabled")
+
+        #depending on the mode its in, itll do a different thing.
+        if onlyRecentMode:
+            # do your query here and stick it in the variable
+            textToPut = Mongo_Read_Data.View_Most_Recent()
+            commandsBox.delete("1.0", tkinter.END)
+            commandsBox.insert(tkinter.END, textToPut)
+            commandsBox.config(state="disabled")
+        else:
+            commandsBox.config(state="normal")
+            # do your query here and stick it in the variable
+            textToPut = Mongo_Read_Data.View_All()
+            commandsBox.delete("1.0", tkinter.END)
+            commandsBox.insert(tkinter.END, textToPut)
+            commandsBox.config(state="disabled")
 
     def checkDoAllSpeechUpdate(self, command):
         # stick them into the text box
