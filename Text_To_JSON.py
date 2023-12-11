@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-# method to to parse a single line of the text file, will only work as single line currently
+# method to parse a single line of the text file, will only work as single line currently
 def parse_taxi_command(line):
     parts = line.split(' ', 1)
     if len(parts) == 2:

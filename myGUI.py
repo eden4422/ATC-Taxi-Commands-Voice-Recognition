@@ -86,7 +86,7 @@ def handlePullRecent(event):
 muteButton.bind("<Button-1>", handleMuteClick)
 startButton.bind("<Button-1>", handleStartClick)
 endButton.bind("<Button-1>", handleEndClick)
-pullAllCommandsButton.bind("<Button-1", handlePullAll)
+pullAllCommandsButton.bind("<Button-1>", handlePullAll)
 pullRecentButton.bind("<Button-1>", handlePullRecent)
 
 #--------------------------------------------------------------------------------------------------------------------------------------
