@@ -58,16 +58,16 @@ def handleMuteClick(event):
     #I assume the easiest thing to do would just be to stop accepting input from the mic, or turn it off
     if muteButton.cget("text") == "Unmute":
         muteButton.config(text="Mute")
-        queueOut.put((1, "Unmuted"))
+        queueOut.put((40, "Unmuted"))
     else:
         muteButton.config(text="Unmute")
-        queueOut.put((1, "Muted"))
+        queueOut.put((10, "Muted"))
 
 def handleStartClick(event):
-    queueOut.put((2, "Start"))
+    queueOut.put((20, "Start"))
 
 def handleEndClick(event):
-    queueOut.put((3, "End"))
+    queueOut.put((30, "End"))
 
 def handlePullAll(event):
     commandsBox.config(state="normal")
