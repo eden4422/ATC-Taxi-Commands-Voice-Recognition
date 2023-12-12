@@ -8,9 +8,15 @@ import wave
 import multiprocessing
 import queue
 
+
+from commands import *
+
+
 # A class mocking actual functionality of audiolistening, by returning 
 def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
     
+    muted = False
+
     fileNum = 0
     # get the samplerate - this is needed by the Kaldi recognizer
     device_info = sd.query_devices(sd.default.device[0], 'input')
@@ -45,6 +51,20 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                             channels=1,
                             callback=recordCallback):
             while True:
+
+                while True:
+                    if audioComIn.empty() and muted:
+                        pass
+                    elif not audioComIn.empty():
+                        input = audioComIn.get()
+
+                        if input[] == MUTE:
+                            if muted:
+                                muted = False
+                                break
+                            else:
+                                muted = True
+
                 data = q.get()
                 recording_data += data  # Accumulate audio data
                 if recognizer.AcceptWaveform(data):

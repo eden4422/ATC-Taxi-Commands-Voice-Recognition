@@ -36,21 +36,18 @@ def thread_managing():
     transComIn = multiprocessing.Queue()
     transComOut = multiprocessing.Queue()
 
-    # Starting frontend process
-    print("starting frontend process")
+    # Creating frontend process
     frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut))
+    
+    print("Starting frontend process")
     frontend_process.start()
 
-    # Starting audio listening process
-    print("starting audio process")
+    # Creating audio listening process
     audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut))
-    audio_listening_process.start()
-
-    # Starting audio transcribing process
-    print("starting audio transcribing process")
+    
+    # Creating audio transcribing process
     audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
-    audio_transcribing_process.start()
-
+    
     running = True
 
     while(running):
@@ -91,7 +88,10 @@ def thread_managing():
                 listenComIn.put(MUTE,"toggle mute")
 
             elif output[0] == START:
+                print("Starting audio listening process")
                 audio_listening_process.start()
+
+                print("Starting audio transcribing process")
                 audio_transcribing_process.start()
 
         # If message recieved from listener
