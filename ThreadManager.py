@@ -106,39 +106,6 @@ def thread_managing():
         elif not transComOut.empty():
             pass
         
-
-        print("waiting for audio in audio queue")
-
-        while(True):
-            if not listenAudioOutQ.empty():
-                break
-            elif not listenComOut.empty():
-                output = listenComOut.get()
-                
-                if output[0] == "allAudio":
-                    frontComIn.put((updateAllSpeechBox,output[1]))
-                    print(output)
-            
-
-
-        # Pull audioClip from queue 
-        audioClipFound = listenAudioOutQ.get()
-
-        # Start audio transcribing process using audioclip and wait for results
-        
-        audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(audioClipFound, transTextOutQ, transComIn, transComOut))
-        audio_transcribing_process.start()
-        audio_transcribing_process.join()
-        print("transcriber process finished")
-
-        transcribedText = transTextOutQ.get()
-
-        print("transcribedtext:")
-        print(transcribedText)
-
-
-        save_to_json(convert_to_json(transcribedText))
-        
         
 
 if __name__ == "__main__":

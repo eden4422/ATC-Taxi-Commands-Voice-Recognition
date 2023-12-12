@@ -58,7 +58,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                     elif not audioComIn.empty():
                         input = audioComIn.get()
 
-                        if input[] == MUTE:
+                        if input[0] == MUTE:
                             if muted:
                                 muted = False
                                 break
