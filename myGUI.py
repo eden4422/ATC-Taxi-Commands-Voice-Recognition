@@ -4,6 +4,7 @@ import os
 import multiprocessing
 import commands
 import Mongo_Read_Data
+import commands
 
 onlyRecentMode = True
 autoUpdateCommand = True
@@ -58,16 +59,16 @@ def handleMuteClick(event):
     #I assume the easiest thing to do would just be to stop accepting input from the mic, or turn it off
     if muteButton.cget("text") == "Unmute":
         muteButton.config(text="Mute")
-        queueOut.put((40, "Unmuted"))
+        queueOut.put((commands.unmuteMic, "Unmuted"))
     else:
         muteButton.config(text="Unmute")
-        queueOut.put((10, "Muted"))
+        queueOut.put((commands.MUTE, "Muted"))
 
 def handleStartClick(event):
-    queueOut.put((20, "Start"))
+    queueOut.put((commands.START, "Start"))
 
 def handleEndClick(event):
-    queueOut.put((30, "End"))
+    queueOut.put((commands.KILLCHILDREN, "End"))
 
 def handlePullAll(event):
     commandsBox.config(state="normal")
