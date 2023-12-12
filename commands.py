@@ -1,11 +1,15 @@
 # for sending to the GUI
 updateErrorB = 1
-updateAllSpeechB = 2
+updateAllSpeechBox = 2
 updateErrorB = 3
 updateCommandBox = 4
 
 #for messages sent by the GUI
-muteMic = 1
-startButtonClick = 2
-endButtonClick = 3
-unmuteMic = 4
+MUTE = 10
+START = 20
+KILLCHILDREN = 30
+unmuteMic = 40
+
+#for telling threads to kill themselves
+KILLSELF = 100
+KILLCHILDREN = 200

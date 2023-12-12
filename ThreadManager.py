@@ -15,7 +15,6 @@ from QueueKeys import *
 from myGUI import *
 from commands import *
 
-
 # main task that handles
 def thread_managing():
     
@@ -26,14 +25,14 @@ def thread_managing():
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
     frontComOut = multiprocessing.Queue() 
 
+    listenAudioOutQ = multiprocessing.Queue() # audio queue, used by audio_listening -> thread_manager
+    
+    listenComIn = multiprocessing.Queue() # audio comm in
+    listenComOut = multiprocessing.Queue() # audio comm out
+    
+    transAudioInQ = multiprocessing.Queue()
+    transTextOutQ = multiprocessing.Queue() # 
 
-    audiobitQ = multiprocessing.Queue() # audio queue, used by audio_listening -> thread_manager
-    
-    audioComIn = multiprocessing.Queue() # audio comm in
-    audioComOut = multiprocessing.Queue() # audio comm out
-    
-    textQ = multiprocessing.Queue() # 
-    
     transComIn = multiprocessing.Queue()
     transComOut = multiprocessing.Queue()
 
@@ -44,47 +43,102 @@ def thread_managing():
 
     # Starting audio listening process
     print("starting audio process")
-    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, audiobitQ, audioComIn, audioComOut))
+    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut))
     audio_listening_process.start()
+
+    # Starting audio transcribing process
+    print("starting audio transcribing process")
+    audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
+    audio_transcribing_process.start()
 
     running = True
 
     while(running):
 
-        # Wait idly while audioClipQueue is empty (waiting for task 2 to finish)
+        # If audio bit was recorded
+        if not listenAudioOutQ.empty():
+            
+            # Pull audioClip from queue and add to transQ
+            audioClipFound = listenAudioOutQ.get()
+            transAudioInQ.put(audioClipFound)
+            
+        # If text was successfully transcribed
+        elif not transTextOutQ.empty():
+
+            transcribedText = transTextOutQ.get()
+            frontComIn.put((updateCommandBox,transcribedText))
+
+            # TODO : JSON SAVING
+
+        # If message recieved from frontend
+        elif not frontComOut.empty():
+            output = frontComOut.get()
+            
+            if output[0] == KILLCHILDREN:
+                frontComIn.put((KILLSELF,"kill self"))
+                listenComIn.put((KILLSELF,"kill self"))
+                transComIn.put((KILLSELF,"kill self"))
+
+                print("Awaiting threads to kill selves")
+
+                frontend_process.join()
+                audio_listening_process.join()
+                audio_transcribing_process.join()
+
+                running = False
+
+            elif output[0] == MUTE:
+                listenComIn.put(MUTE,"toggle mute")
+
+            elif output[0] == START:
+                audio_listening_process.start()
+                audio_transcribing_process.start()
+
+        # If message recieved from listener
+        elif not listenComOut.empty():
+            output = listenComOut.get()
+                
+            if output[0] == "allAudio":
+                frontComIn.put((updateAllSpeechBox,output[1]))
+                print(output)
+            
+        # If message recieved from transcriber
+        elif not transComOut.empty():
+            pass
         
+
         print("waiting for audio in audio queue")
 
         while(True):
-            if not audiobitQ.empty():
+            if not listenAudioOutQ.empty():
                 break
-            elif not audioComOut.empty():
-                output = audioComOut.get()
+            elif not listenComOut.empty():
+                output = listenComOut.get()
                 
                 if output[0] == "allAudio":
-                    frontComIn.put((updateAllSpeechB,output[1]))
+                    frontComIn.put((updateAllSpeechBox,output[1]))
                     print(output)
             
 
 
         # Pull audioClip from queue 
-        audioClipFound = audiobitQ.get()
+        audioClipFound = listenAudioOutQ.get()
 
         # Start audio transcribing process using audioclip and wait for results
         
-        audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(audioClipFound, textQ, transComIn, transComOut))
+        audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(audioClipFound, transTextOutQ, transComIn, transComOut))
         audio_transcribing_process.start()
         audio_transcribing_process.join()
         print("transcriber process finished")
 
-        transcribedText = textQ.get()
+        transcribedText = transTextOutQ.get()
 
         print("transcribedtext:")
         print(transcribedText)
 
 
         save_to_json(convert_to_json(transcribedText))
-        print(43)
+        
         
 
 if __name__ == "__main__":
