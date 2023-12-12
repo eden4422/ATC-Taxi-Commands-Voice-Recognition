@@ -15,6 +15,8 @@ def transcribe_audio(input_audio_queue,text_queue, com_in_queue,com_out_queue):
         # If we get audio in the input_audio_queue, process it
         if not input_audio_queue.empty():        
             print("transcribing begin")
+            audioBits = input_audio_queue.get()
+            
             model_link_one = "vosk-model-small-en-us-0.15"
             model_link_two = "vosk-model-small-en-us-0.15"
             model_link_three = "vosk-model-small-en-us-0.15"
@@ -24,9 +26,9 @@ def transcribe_audio(input_audio_queue,text_queue, com_in_queue,com_out_queue):
             error_queue = multiprocessing.Queue()
 
             # creating three model processes 
-            model_process_one = multiprocessing.Process(target=trans_model, args=(input_audio_queue, model_link_one, output_text, error_queue))
-            model_process_two = multiprocessing.Process(target=trans_model, args=(input_audio_queue, model_link_two, output_text, error_queue))
-            model_process_three = multiprocessing.Process(target=trans_model, args=(input_audio_queue, model_link_three, output_text, error_queue))
+            model_process_one = multiprocessing.Process(target=trans_model, args=(audioBits, model_link_one, output_text, error_queue))
+            model_process_two = multiprocessing.Process(target=trans_model, args=(audioBits, model_link_two, output_text, error_queue))
+            model_process_three = multiprocessing.Process(target=trans_model, args=(audioBits, model_link_three, output_text, error_queue))
 
             # start all three processes
             model_process_one.start()
@@ -75,13 +77,12 @@ def transcribe_audio(input_audio_queue,text_queue, com_in_queue,com_out_queue):
             if tests_pass == True and test_passed != None:
                 text_queue.put(test_passed)
 
+        # Checking com_in queue for commands from threadmanager
         elif not com_in_queue.empty():
             input = com_in_queue.get()
             
             if input[0] == KILLSELF:
                 running = False
-
-        time.sleep(.05)
 
             # Delta one two three this is ground control please head to runway 33 taxi via Delta Bravo Zulu
             # D123 33 D B Z
