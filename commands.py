@@ -5,6 +5,7 @@ updateErrorB = 3
 updateCommandBox = 4
 
 #for messages sent by the GUI
-muteButtonClick = 1
+muteMic = 1
 startButtonClick = 2
 endButtonClick = 3
+unmuteMic = 4
