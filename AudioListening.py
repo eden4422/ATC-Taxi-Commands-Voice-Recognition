@@ -53,17 +53,25 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
             while True:
 
                 while True:
-                    if audioComIn.empty() and muted:
-                        pass
+                    if audioComIn.empty():
+                        if muted:
+                            print("muted, won't do anything")
+                            pass
+                        elif not muted:
+                            print("not muted, listening now, breaking loop")
+                            break
+
                     elif not audioComIn.empty():
                         input = audioComIn.get()
 
                         if input[0] == MUTE:
                             if muted:
+                                print("command was to unmute, unmuting")
                                 muted = False
-                                break
-                            else:
+                            elif not muted:
+                                print("command was to mute, muting now")
                                 muted = True
+                                
 
                 data = q.get()
                 recording_data += data  # Accumulate audio data

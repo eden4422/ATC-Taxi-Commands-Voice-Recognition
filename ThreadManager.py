@@ -78,10 +78,6 @@ def thread_managing():
 
                 print("Awaiting threads to kill selves")
 
-                frontend_process.join()
-                audio_listening_process.join()
-                audio_transcribing_process.join()
-
                 running = False
 
             elif output[0] == MUTE:
