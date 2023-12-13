@@ -2,9 +2,9 @@ import tkinter
 import time
 import os
 import multiprocessing
-import commands
+from commands import *
 import Mongo_Read_Data
-import commands
+import JSON_to_Mongo
 
 onlyRecentMode = True
 autoUpdateCommand = True
@@ -59,6 +59,11 @@ def handleMuteClick(event):
     #I assume the easiest thing to do would just be to stop accepting input from the mic, or turn it off
     if muteButton.cget("text") == "Unmute":
         muteButton.config(text="Mute")
+        queueOut.put((MUTE, "Unmuted"))
+    else:
+        muteButton.config(text="Unmute")
+        queueOut.put((MUTE, "Muted"))
+
         queueOut.put((commands.MUTE, "Unmuted"))
     else:
         muteButton.config(text="Unmute")
@@ -97,6 +102,9 @@ def handleAutoUpdate(event):
     else:
         autoUpdateCommand = True
         autoUpdateCommand.config(text="Auto Update: On")
+
+
+
 
 #This is how you bind something. The first argument is the event that you want something to happen on (left click in this case),
 #and the second is what you want to have happen.

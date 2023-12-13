@@ -40,6 +40,3 @@ def View_All():
         return "\n".join(items_list)
     else:
         return "Empty collection."
-
-View_Most_Recent()
-View_All()
