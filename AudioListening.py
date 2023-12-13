@@ -29,9 +29,12 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
     q = queue.Queue()
 
     def recordCallback(indata, frames, time, status):
-        if status:
-            print(status, file=sys.stderr)
-        q.put(bytes(indata))
+        if muted:
+            pass
+        elif not muted:
+            if status:
+                print(status, file=sys.stderr)
+            q.put(bytes(indata))
 
     # build the model and recognizer objects.
     print("===> Build the model and recognizer objects.  This will take a few minutes.")
@@ -52,25 +55,16 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                             callback=recordCallback):
             while True:
 
-                while True:
-                    if audioComIn.empty():
+                print("checking com in")
+                if not audioComIn.empty():
+                    input = audioComIn.get()
+
+                    if input[0] == MUTE:
                         if muted:
-                            print("muted, won't do anything")
-                            pass
+                            muted = False
                         elif not muted:
-                            print("not muted, listening now, breaking loop")
-                            break
+                            muted = True
 
-                    elif not audioComIn.empty():
-                        input = audioComIn.get()
-
-                        if input[0] == MUTE:
-                            if muted:
-                                print("command was to unmute, unmuting")
-                                muted = False
-                            elif not muted:
-                                print("command was to mute, muting now")
-                                muted = True
                                 
 
                 data = q.get()
