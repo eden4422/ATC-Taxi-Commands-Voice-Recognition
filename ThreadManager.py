@@ -52,7 +52,6 @@ def thread_managing():
     
     running = True
     while(running):
-
         # If audio bit was recorded
         if not listenAudioOutQ.empty():
 
@@ -90,7 +89,8 @@ def thread_managing():
                 running = False
 
             elif output[0] == MUTE:
-                listenComIn.put(MUTE,"toggle mute")
+                print("toggle mute")
+                listenComIn.put((MUTE,"toggle mute"))
 
             elif output[0] == START:
                 print("Starting audio listening process")

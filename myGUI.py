@@ -2,7 +2,7 @@ import tkinter
 import time
 import os
 import multiprocessing
-import commands
+from commands import *
 import Mongo_Read_Data
 import JSON_to_Mongo
 onlyRecentMode = True
@@ -58,10 +58,10 @@ def handleMuteClick(event):
     #I assume the easiest thing to do would just be to stop accepting input from the mic, or turn it off
     if muteButton.cget("text") == "Unmute":
         muteButton.config(text="Mute")
-        queueOut.put((40, "Unmuted"))
+        queueOut.put((MUTE, "Unmuted"))
     else:
         muteButton.config(text="Unmute")
-        queueOut.put((10, "Muted"))
+        queueOut.put((MUTE, "Muted"))
 
 def handleStartClick(event):
     queueOut.put((20, "Start"))
