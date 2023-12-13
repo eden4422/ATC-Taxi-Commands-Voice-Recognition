@@ -7,8 +7,6 @@ from time import sleep
 import wave
 import multiprocessing
 import queue
-
-
 from commands import *
 
 
@@ -29,7 +27,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
     q = queue.Queue()
 
     def recordCallback(indata, frames, time, status):
-
+      
         if not muted:
             if status:
                 print(status, file=sys.stderr)
@@ -53,12 +51,12 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                             channels=1,
                             callback=recordCallback):
             while True:
-                
+              
                 if not audioComIn.empty():
                     input = audioComIn.get()
                     if input[0] == MUTE:
                         muted = not muted
-                if not q.empty():
+                if not q.empty():     
                     data = q.get()
                     recording_data += data  # Accumulate audio data
                     if recognizer.AcceptWaveform(data):
@@ -66,8 +64,6 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                         # convert the recognizerResult string into a dictionary
                         resultDict = json.loads(recognizerResult)
                         resultText: str = resultDict["text"]
-                        print(resultDict)
-                        print(resultText + "bananass")
                         audioComOut.put(("allAudio", resultText))
 
                         if any(ID in resultText for ID in flight_IDs):
@@ -81,7 +77,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                                 fileNum += 1
                                 if fileNum == 100:
                                     fileNum = 0
-                                
+                                    
                             audiobitQ.put((recording_data,samplerate))
 
                             recording_data = b''  # Reset accumulated audio data

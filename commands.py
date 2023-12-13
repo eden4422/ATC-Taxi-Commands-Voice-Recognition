@@ -12,4 +12,4 @@ unmuteMic = 40
 
 #for telling threads to kill themselves
 KILLSELF = 100
-KILLCHILDREN = 200
+#KILLCHILDREN = 200

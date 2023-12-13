@@ -5,6 +5,7 @@ import multiprocessing
 from commands import *
 import Mongo_Read_Data
 import JSON_to_Mongo
+
 onlyRecentMode = True
 autoUpdateCommand = True
 # For a lot of this, reference this page on stackexchange: https://stackoverflow.com/questions/29158220/tkinter-understanding-mainloop
@@ -63,11 +64,16 @@ def handleMuteClick(event):
         muteButton.config(text="Unmute")
         queueOut.put((MUTE, "Muted"))
 
+        queueOut.put((commands.MUTE, "Unmuted"))
+    else:
+        muteButton.config(text="Unmute")
+        queueOut.put((commands.MUTE, "Muted"))
+
 def handleStartClick(event):
-    queueOut.put((20, "Start"))
+    queueOut.put((commands.START, "Start"))
 
 def handleEndClick(event):
-    queueOut.put((30, "End"))
+    queueOut.put((commands.KILLCHILDREN, "End"))
 
 def handlePullAll(event):
     commandsBox.config(state="normal")
