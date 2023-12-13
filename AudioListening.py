@@ -57,6 +57,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
 
                 print("checking com in")
                 if not audioComIn.empty():
+
                     input = audioComIn.get()
 
                     if input[0] == MUTE:
@@ -65,38 +66,39 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                         elif not muted:
                             muted = True
 
-                                
+                print("checking data from audio stream")      
+                if not data.empty():
 
-                data = q.get()
-                recording_data += data  # Accumulate audio data
-                if recognizer.AcceptWaveform(data):
-                    recognizerResult = recognizer.Result()
-                    # convert the recognizerResult string into a dictionary
-                    resultDict = json.loads(recognizerResult)
-                    resultText: str = resultDict["text"]
-                    print(resultDict)
-                    print(resultText)
-                    audioComOut.put(("allAudio", resultText))
+                    data = q.get()
+                    recording_data += data  # Accumulate audio data
+                    if recognizer.AcceptWaveform(data):
+                        recognizerResult = recognizer.Result()
+                        # convert the recognizerResult string into a dictionary
+                        resultDict = json.loads(recognizerResult)
+                        resultText: str = resultDict["text"]
+                        print(resultDict)
+                        print(resultText)
+                        audioComOut.put(("allAudio", resultText))
 
-                    if any(ID in resultText for ID in flight_IDs):
+                        if any(ID in resultText for ID in flight_IDs):
 
-                        # Save the accumulated audio data to a WAV file
-                        with wave.open(f'output{fileNum}.wav', 'w') as wf:
-                            wf.setnchannels(1)
-                            wf.setsampwidth(2)
-                            wf.setframerate(samplerate)
-                            wf.writeframes(recording_data[-frame_limit:])
-                            fileNum += 1
-                            if fileNum == 100:
-                                fileNum = 0
+                            # Save the accumulated audio data to a WAV file
+                            with wave.open(f'output{fileNum}.wav', 'w') as wf:
+                                wf.setnchannels(1)
+                                wf.setsampwidth(2)
+                                wf.setframerate(samplerate)
+                                wf.writeframes(recording_data[-frame_limit:])
+                                fileNum += 1
+                                if fileNum == 100:
+                                    fileNum = 0
                             
-                        audiobitQ.put((recording_data,samplerate))
+                            audiobitQ.put((recording_data,samplerate))
 
-                        recording_data = b''  # Reset accumulated audio data
+                            recording_data = b''  # Reset accumulated audio data
 
-                    else:
-                        recording_data = b''
-                        print("no input sound")
+                        else:
+                            recording_data = b''
+                            print("no input sound")
 
     except KeyboardInterrupt:
         print('===> Finished Recording')
