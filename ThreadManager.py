@@ -5,6 +5,8 @@ from datetime import datetime
 import queue
 import json
 import wave
+import Text_To_JSON
+import Mongo_Read_Data
 
 # local imports
 from JsonSaving import *
@@ -19,7 +21,7 @@ from commands import *
 def thread_managing():
     
     # Temp variable for airplane identifier
-    plane_ids = ["delta one two three", "united six seven eight"]
+    plane_ids = ["delta one two three", "united six seven eight, delta five eight nine two"]
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
@@ -49,23 +51,26 @@ def thread_managing():
     audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
     
     running = True
-
     while(running):
 
         # If audio bit was recorded
         if not listenAudioOutQ.empty():
-            
+
             # Pull audioClip from queue and add to transQ
             audioClipFound = listenAudioOutQ.get()
             transAudioInQ.put(audioClipFound)
             
         # If text was successfully transcribed
         elif not transTextOutQ.empty():
-
             transcribedText = transTextOutQ.get()
+            phoentetic_text = Text_To_JSON.phonetic_command_translator(transcribedText)
+            parsed_text = Text_To_JSON.parse_taxi_command(phoentetic_text)
+            Text_To_JSON.save_to_JSON(parsed_text)
+            JSON_to_Mongo.Write_to_Mongo()
+            print("Transcribed Text: "+transcribedText )
             frontComIn.put((updateCommandBox,transcribedText))
 
-            # TODO : JSON SAVING
+
 
         # If message recieved from frontend
         elif not frontComOut.empty():

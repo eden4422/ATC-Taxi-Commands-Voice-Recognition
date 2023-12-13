@@ -4,7 +4,7 @@ import os
 import multiprocessing
 import commands
 import Mongo_Read_Data
-
+import JSON_to_Mongo
 onlyRecentMode = True
 autoUpdateCommand = True
 # For a lot of this, reference this page on stackexchange: https://stackoverflow.com/questions/29158220/tkinter-understanding-mainloop
@@ -45,7 +45,7 @@ allSpeechBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 commandsBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 muteButton.pack(side=tkinter.LEFT)
 startButton.pack(side=tkinter.LEFT)
-autoUpdateCommandButton.pack(side=tkinter.LEFT)
+#autoUpdateCommandButton.pack(side=tkinter.LEFT)
 endButton.pack(side=tkinter.LEFT)
 pullRecentButton.pack(side=tkinter.LEFT)
 pullAllCommandsButton.pack(side=tkinter.LEFT)
@@ -96,6 +96,9 @@ def handleAutoUpdate(event):
     else:
         autoUpdateCommand = True
         autoUpdateCommand.config(text="Auto Update: On")
+
+
+
 
 #This is how you bind something. The first argument is the event that you want something to happen on (left click in this case),
 #and the second is what you want to have happen.

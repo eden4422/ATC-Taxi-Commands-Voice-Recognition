@@ -52,18 +52,6 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                             callback=recordCallback):
             while True:
 
-                while True:
-                    if audioComIn.empty() and muted:
-                        pass
-                    elif not audioComIn.empty():
-                        input = audioComIn.get()
-
-                        if input[0] == MUTE:
-                            if muted:
-                                muted = False
-                                break
-                            else:
-                                muted = True
 
                 data = q.get()
                 recording_data += data  # Accumulate audio data
@@ -73,7 +61,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                     resultDict = json.loads(recognizerResult)
                     resultText: str = resultDict["text"]
                     print(resultDict)
-                    print(resultText)
+                    print(resultText + "bananass")
                     audioComOut.put(("allAudio", resultText))
 
                     if any(ID in resultText for ID in flight_IDs):
