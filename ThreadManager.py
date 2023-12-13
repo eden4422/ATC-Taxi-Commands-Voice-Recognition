@@ -21,7 +21,7 @@ from commands import *
 def thread_managing():
     
     # Temp variable for airplane identifier
-    plane_ids = ["delta one two three", "united six seven eight, delta five eight nine two"]
+    plane_ids = ["delta one two three", "united six seven eight", "delta five eight nine two"]
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend

@@ -64,16 +64,11 @@ def handleMuteClick(event):
         muteButton.config(text="Unmute")
         queueOut.put((MUTE, "Muted"))
 
-        queueOut.put((commands.MUTE, "Unmuted"))
-    else:
-        muteButton.config(text="Unmute")
-        queueOut.put((commands.MUTE, "Muted"))
-
 def handleStartClick(event):
-    queueOut.put((commands.START, "Start"))
+    queueOut.put((START, "Start"))
 
 def handleEndClick(event):
-    queueOut.put((commands.KILLCHILDREN, "End"))
+    queueOut.put((KILLCHILDREN, "End"))
 
 def handlePullAll(event):
     commandsBox.config(state="normal")

@@ -64,6 +64,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
                         # convert the recognizerResult string into a dictionary
                         resultDict = json.loads(recognizerResult)
                         resultText: str = resultDict["text"]
+                        print(resultText)
                         audioComOut.put(("allAudio", resultText))
 
                         if any(ID in resultText for ID in flight_IDs):
