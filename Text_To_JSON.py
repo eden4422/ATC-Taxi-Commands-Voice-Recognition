@@ -2,6 +2,41 @@ import ThreadManager
 from datetime import datetime
 import json
 import os
+import spacy
+import re
+
+# Load the English NLP model from spaCy
+nlp = spacy.load("en_core_web_sm")
+
+airlines = {
+    "Delta",
+    "Southwest",
+    "Hawaiian",
+    "Alaska",
+    "United",
+    "American",
+    "JetBlue",
+    "Spirit",
+    "Frontier",
+    "Allegiant"
+}
+
+atc_taxi_keywords = [
+    "HOLD",
+    "HOLD POSITION",
+    "HOLD FOR",
+    "CROSS",
+    "TAXI",
+    "CONTINUE TAXIING",
+    "PROCEED VIA",
+    "ON",
+    "TO",
+    "ACROSS RUNWAY",
+    "VIA",
+    "HOLD SHORT OF",
+    "FOLLOW",
+    "BEHIND"
+]
 
 def phonetic_command_translator(line):
     phonetic_alphabet = {
@@ -141,8 +176,9 @@ def phonetic_command_translator(line):
 
     while i < len(words):
         word = words[i]
-
-        if word in phonetic_alphabet:
+        if word == "delta":
+            result_list.append(word)
+        elif word in phonetic_alphabet:
             result_list.append(phonetic_alphabet[word])
         elif (i + 1) < len(words) and (word + " " + words[i + 1]) in number_to_spelled_version:
             result_list.append(number_to_spelled_version[word + " " + words[i + 1]])
@@ -154,29 +190,70 @@ def phonetic_command_translator(line):
         i += 1
     return ' '.join(result_list)
 
+def find_verbs(text):
+    aviation_verbs = ['hold', 'clear', 'taxi', 'depart', 'ascend', 'descend', 'turn', 'climb', 'approach', 'land']
+
+    doc = nlp(text)
+    verbs = [token.text for token in doc if token.pos_ == 'VERB']
+
+    words = text.lower().split()
+    for verb in aviation_verbs:
+        if verb in words and verb not in verbs:
+            verbs.append(verb)
+
+    return verbs
+
+
+def extract_flight(line):
+    # Regex pattern to match the airline name followed by a series of digits separated by spaces
+    match = re.search(r'\b(' + '|'.join(airlines) + r')\s(\d+\s*)+\b', line, re.IGNORECASE)
+
+    if match:
+        # Extract the airline name and the flight number
+        airline = match.group(1)
+        flight_numbers = ''.join(re.findall(r'\d+', match.group()))
+
+        return f'{airline} {flight_numbers}'
+    else:
+        return None
+
+def extract_command(line):
+
+    return find_verbs(line)
+
+def extract_runway(line):
+    match = re.search(r"runway\d", line)
+    if match:
+        return match.group()
+    else:
+        return None
+
+def extract_tower(line):
+    match = re.search(r"tower \d", line)
+    if match:
+        return match.group()
+    else:
+        return None
 
 def parse_taxi_command(line):
-    keyword = "this"
-    parts = line.split(keyword, 1)  # Split the string into two parts at the first occurrence of the keyword
-    if len(parts) == 1:
-        # Keyword not found, return the entire string
-        return line, None
-    else:
+        flight_id = extract_flight(line)
+        command = extract_command(line)
+        runway = extract_runway(line)
+        tower = extract_tower(line)
         return {
             "date": str(datetime.now()),
-            "flight": parts[0],
-            "instruction": parts[1]
+            "FlightID": flight_id,
+            "Command": command,
+            "Runway": runway,
+            "Tower": tower
         }
-
-
 
 def save_to_JSON(result_parsed):
     json_commands = json.dumps(result_parsed, indent=2)
-
     file_path = 'JSON_Taxi_Commands.json'
     with open(file_path, 'w') as file:
         file.write(json_commands)
 
-text = phonetic_command_translator("Delta one two three this is ground control please head to runway thirty three taxi via Delta Bravo Zulu")
+text = phonetic_command_translator("delta 623, in the event of missed approach, taxiing aircraft right of runway one")
 print(text)
 print(parse_taxi_command(text))
