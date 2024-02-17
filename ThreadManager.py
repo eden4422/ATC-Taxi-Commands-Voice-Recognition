@@ -18,10 +18,10 @@ from myGUI import *
 from commands import *
 
 # main task that handles
-def thread_managing():
+def thread_managing(plane_id_list):
     
     # Temp variable for airplane identifier
-    plane_ids = ["delta one two three", "united six seven eight", "delta five eight nine two"]
+    plane_ids = plane_id_list
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
@@ -38,20 +38,30 @@ def thread_managing():
     transComIn = multiprocessing.Queue()
     transComOut = multiprocessing.Queue()
 
+    listenHeartBeat = multiprocessing.Queue()
+    transHeartBeat = multiprocessing.Queue()
+    frontHeartBeat = multiprocessing.Queue()
+
+
+
     # Creating frontend process
-    frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut))
+    frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut, frontHeartBeat))
     
     print("Starting frontend process")
     frontend_process.start()
 
     # Creating audio listening process
-    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut))
+    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut, listenHeartBeat))
     
     # Creating audio transcribing process
-    audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
+    audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut, transHeartBeat))
     
     running = True
+
     while(running):
+
+
+
         # If audio bit was recorded
         if not listenAudioOutQ.empty():
 
@@ -112,7 +122,7 @@ def thread_managing():
 if __name__ == "__main__":
 
     print("starting thread manager")
-    processMain = multiprocessing.Process(target=thread_managing)
+    processMain = multiprocessing.Process(target=thread_managing, args=( ["delta one two three", "united six seven eight", "delta five eight nine two"]))
     processMain.start()
     processMain.join()
     print("threadmanager finished")
