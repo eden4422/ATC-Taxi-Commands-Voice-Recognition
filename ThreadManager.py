@@ -18,9 +18,13 @@ from myGUI import *
 from commands import *
 
 # main task that handles
-def thread_managing(plane_id_list):
+def thread_managing(plane_id_list: list, time_out: int):
     
-    # Temp variable for airplane identifier
+    # Variables for heartbeat check across threads
+    coundown_left = 0
+    countdown_start = time_out
+
+    # Variable for airplane identifier
     plane_ids = plane_id_list
 
     # Initializing pipes, queues, etc
@@ -60,6 +64,18 @@ def thread_managing(plane_id_list):
 
     while(running):
 
+        # Checking each thread to make sure it's still alive, and restarting the thread if it isn't
+        if not audio_listening_process.is_alive:
+            audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut, listenHeartBeat))
+            print('ERROR: audio listening process failed, restarting now')
+
+        if not frontend_process.is_alive:
+            frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut, frontHeartBeat))
+            print('ERROR: frontend process failed, restarting now')
+
+        if not audio_transcribing_process.is_alive:
+            audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut, transHeartBeat))
+            print('ERROR: audio transcribing process failed, restarting now')
 
 
         # If audio bit was recorded
