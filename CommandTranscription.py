@@ -7,10 +7,14 @@ import time
 from Model import trans_model
 from commands import *
 
-def transcribe_audio(input_audio_queue,text_queue, com_in_queue,com_out_queue, frontHeartBeat):
+def transcribe_audio(input_audio_queue,text_queue, com_in_queue, com_out_queue, heartBeat):
     
     running = True
     while running:
+
+        if heartBeat == False:
+            heartBeat = True
+
 
         # If we get audio in the input_audio_queue, process it
         if not input_audio_queue.empty():        
