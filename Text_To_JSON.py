@@ -190,18 +190,18 @@ def phonetic_command_translator(line):
         i += 1
     return ' '.join(result_list)
 
-def find_verbs(text):
+def extract_command(line):
     aviation_verbs = ['hold', 'clear', 'taxi', 'depart', 'ascend', 'descend', 'turn', 'climb', 'approach', 'land']
+    words = line.lower().split()
+    last_verb_index = -1
 
-    doc = nlp(text)
-    verbs = [token.text for token in doc if token.pos_ == 'VERB']
+    for i, word in enumerate(words):
+        if word in aviation_verbs:
+            last_verb_index = i
 
-    words = text.lower().split()
-    for verb in aviation_verbs:
-        if verb in words and verb not in verbs:
-            verbs.append(verb)
-
-    return verbs
+    if last_verb_index == -1:
+        return ""  # No aviation verb found
+    return ' '.join(words[last_verb_index:])
 
 
 def extract_flight(line):
@@ -217,19 +217,16 @@ def extract_flight(line):
     else:
         return None
 
-def extract_command(line):
-
-    return find_verbs(line)
 
 def extract_runway(line):
-    match = re.search(r"runway\d", line)
+    match = re.search(r"runway \d{1,2}", line)
     if match:
         return match.group()
     else:
         return None
 
 def extract_tower(line):
-    match = re.search(r"tower \d", line)
+    match = re.search(r"tower \d{1,2}", line)
     if match:
         return match.group()
     else:
@@ -254,6 +251,7 @@ def save_to_JSON(result_parsed):
     with open(file_path, 'w') as file:
         file.write(json_commands)
 
-text = phonetic_command_translator("delta 623, in the event of missed approach, taxiing aircraft right of runway one")
-print(text)
-print(parse_taxi_command(text))
+#text = phonetic_command_translator("delta six two three in the event of missed approach taxi aircraft right of runway one near tower ten")
+text1 = phonetic_command_translator("Charlie Foxtrot Bravo after landing, vacate runway to the left via taxiway Bravo, hold short of taxiway Echo for incoming traffic, then proceed to gate Alpha 3 under marshalling guidance")
+print(text1)
+print(parse_taxi_command(text1))
