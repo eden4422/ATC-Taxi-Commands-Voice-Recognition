@@ -25,3 +25,25 @@ class Sentence:
             if range_start <= certainty <= range_end:
                 return color_code
         return "0"  # Default color code
+
+# Example usage:
+word1 = Word("Hello", 0.8)
+word2 = Word("world", 0.5)
+word3 = Word("Python", 0.9)
+
+# Specify different certainty ranges and their corresponding colors
+certainty_ranges = [(0.0, 0.4, "31"),  # Red for low certainty
+                    (0.4, 0.7, "33"),  # Yellow for medium certainty
+                    (0.7, 1.0, "32")]  # Green for high certainty
+
+# Create a sentence object
+sentence = Sentence()
+
+# Add words to the sentence
+sentence.add_word(word1)
+sentence.add_word(word2)
+sentence.add_word(word3)
+
+# Get the colored representation of the sentence and print it
+colored_sentence = sentence.to_string(certainty_ranges)
+print(colored_sentence)
