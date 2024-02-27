@@ -2,7 +2,7 @@
 updateErrorB = 1
 updateAllSpeechBox = 2
 updateErrorB = 3
-updateCommandBox = 4
+update_command_box = 4
 
 #for messages sent by the GUI
 MUTE = 10
