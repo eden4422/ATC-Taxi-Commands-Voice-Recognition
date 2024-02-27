@@ -62,7 +62,7 @@ def thread_managing(plane_id_list: list, time_out: int):
 
     while(running):
 
-        # Checking each thread to make sure it's still alive, and restarting the thread if it isn't
+        # Checking each thread to make sure they're still alive, and restarting the thread if it isn't
         if not audio_listening_process.is_alive:
             audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut, listenHeartBeat))
             print('ERROR: audio listening process failed, restarting now')
