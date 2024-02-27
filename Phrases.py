@@ -28,6 +28,14 @@ class Phrase:
             colored_word = f"\033[{color}m{word.word}\033[0m"
             colored_words.append(colored_word)
         return ' '.join(colored_words)
+    
+    def to_string(self):
+        colored_words = []
+        for word in self.words:
+            color = self.get_color(word.certainty, self.certainty_ranges)
+            colored_word = f"\033[{color}m{word.word}\033[0m"
+            colored_words.append(colored_word)
+        return ' '.join(colored_words)
 
     def get_color(self, certainty, certainty_ranges):
         for range_start, range_end, color_code in certainty_ranges:
