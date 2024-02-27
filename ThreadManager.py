@@ -25,7 +25,7 @@ def thread_managing(plane_id_list: list, time_out: int):
     currentlyTranscribing: bool = False
 
     # Variables for heartbeat check across threads
-    coundown_left = 0
+    countdown_left = 0
     countdown_start = time_out
 
     # Variable for airplane identifier
@@ -80,8 +80,8 @@ def thread_managing(plane_id_list: list, time_out: int):
             print('ERROR: audio transcribing process failed, restarting now')
 
         # Checking heart beat after timeout has passed
-        coundown_left = coundown_left - 1
-        if coundown_left <= 0:
+        countdown_left = countdown_left - 1
+        if countdown_left <= 0:
             # Restarting threads if heartbeat queue is empty
             if frontHeartBeat == True:
                 frontHeartBeat = False
@@ -98,7 +98,7 @@ def thread_managing(plane_id_list: list, time_out: int):
                 audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut, transHeartBeat))
                 print('ERROR: audio transcribing process has timed out, restarting now')
             
-            coundown_left = countdown_start
+            countdown_left = countdown_start
 
         # If audio bit was recorded
         if not listenAudioOutQ.empty():
@@ -128,6 +128,9 @@ def thread_managing(plane_id_list: list, time_out: int):
                 listenComIn.put((KILLSELF,"kill self"))
                 transComIn.put((KILLSELF,"kill self"))
 
+                currentlyTranscribing = False
+                currentlyListening = False
+
                 print("Awaiting threads to kill selves")
 
                 running = False
@@ -139,9 +142,11 @@ def thread_managing(plane_id_list: list, time_out: int):
             elif output[0] == START:
                 print("Starting audio listening process")
                 audio_listening_process.start()
+                currentlyListening = True
 
                 print("Starting audio transcribing process")
                 audio_transcribing_process.start()
+                currentlyTranscribing = True
 
         # If message recieved from listener
         elif not listenComOut.empty():
@@ -160,7 +165,11 @@ def thread_managing(plane_id_list: list, time_out: int):
 if __name__ == "__main__":
 
     print("starting thread manager")
-    processMain = multiprocessing.Process(target=thread_managing, args=( ["delta one two three", "united six seven eight", "delta five eight nine two"], 10000))
+    processMain = multiprocessing.Process(
+        target=thread_managing, 
+        args=( ["delta one two three", "united six seven eight", "delta five eight nine two"], 10000)
+        )
+    
     processMain.start()
     processMain.join()
     print("threadmanager finished")
