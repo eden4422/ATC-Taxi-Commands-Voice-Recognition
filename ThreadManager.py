@@ -46,9 +46,9 @@ def thread_managing(plane_id_list: list, time_out: int):
     trans_com_in = multiprocessing.Queue()
     trans_com_out = multiprocessing.Queue()
 
-    listen_heart_beat = False
-    trans_heart_beat = False
-    front_heart_beat = False
+    listen_heart_beat: multiprocessing.Value = False
+    trans_heart_beat: multiprocessing.Value = False
+    front_heart_beat: multiprocessing.Value = False
 
     # Creating frontend process
     frontend_process = multiprocessing.Process(target=getGoing, args=(front_com_in, front_com_out, front_heart_beat))
@@ -65,7 +65,7 @@ def thread_managing(plane_id_list: list, time_out: int):
     running = True
 
     while(running):
-
+        '''
         # Checking each thread to make sure they're still alive, and restarting the thread if it isn't
         if not audio_listening_process.is_alive and currentlyListening:
             audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listen_audio_outQ, listen_com_in, listen_com_out, listen_heart_beat))
@@ -78,7 +78,9 @@ def thread_managing(plane_id_list: list, time_out: int):
         if not audio_transcribing_process.is_alive and currentlyTranscribing:
             audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(trans_audio_inQ, trans_text_outQ, trans_com_in, trans_com_out, trans_heart_beat))
             print('ERROR: audio transcribing process failed, restarting now')
-
+    '''
+        
+        '''
         # Checking heart beat after timeout has passed
         countdown_left = countdown_left - 1
         if countdown_left <= 0:
@@ -99,7 +101,7 @@ def thread_managing(plane_id_list: list, time_out: int):
                 print('ERROR: audio transcribing process has timed out, restarting now')
             
             countdown_left = countdown_start
-
+        '''
         # If audio bit was recorded
         if not listen_audio_outQ.empty():
 

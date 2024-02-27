@@ -143,7 +143,7 @@ class functionality:
         self.aBox = aBox
         self.eBox = eBox
         self.counter = 1
-    def doFunctionality(self):
+    def doFunctionality(self, heart):
         # this is where we route to specific functionality
         #self.checkDoCommandUpdate()
         #self.checkDoAllSpeechUpdate()
@@ -159,11 +159,10 @@ class functionality:
                 self.checkDoErrorUpdate(commandToDo)
             elif commandToDo[0] ==4 and autoUpdateCommand:
                 self.checkDoCommandUpdate(commandToDo)
-        if heart >= 10:
-            heart = 0
-            queueOut.put(HEARTBEAT)
-        else:
-            heart = heart + 1
+        
+        if heart == False:
+            heart = True
+
         self.window.after(100, self.doFunctionality)
         
     def checkDoCommandUpdate(self, commandToDo):
@@ -234,7 +233,7 @@ def getGoing(inyago, outyago, heartBeat):
     allSpeechBox.config(state="disabled")
     errorBox.config(state="disabled")
     doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
-    doFunct.doFunctionality()
+    doFunct.doFunctionality(heartBeat)
     window.mainloop()
 
 # queue has a tuple with the type of thing and the actual stuff in the second element

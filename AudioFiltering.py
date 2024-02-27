@@ -54,10 +54,10 @@ def remove_background_noise(raw_audio, sample_rate):
 
 
 # Converting wav file to raw
-samp = wav_to_raw_audio("output3.wav")
+samp = wav_to_raw_audio("output1.wav")
 
 # Filtering out background noise from raw audio
 audio = remove_background_noise(samp[0], samp[1])
 
 # Saving filtered audio to wav
-raw_audio_to_wav(audio, samp[1], "output00.wav")
+raw_audio_to_wav(audio, samp[1], "output11.wav")
