@@ -3,7 +3,7 @@ class Word:
         self.word = word
         self.certainty = certainty
 
-class Sentence:
+class Phrase:
     def __init__(self):
         self.words = []
         self.certainty_ranges = []
@@ -46,7 +46,7 @@ certainty_ranges = [(0.0, 0.4, "31"),  # Red for low certainty
                     (0.7, 1.0, "32")]  # Green for high certainty
 
 # Create a sentence object
-sentence = Sentence()
+sentence = Phrase()
 
 # Add words to the sentence
 sentence.add_word(word1)
