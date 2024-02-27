@@ -132,6 +132,7 @@ pullRecentButton.bind("<Button-1>", handlePullRecent)
 
 queueIn = multiprocessing.Queue()
 queueOut = multiprocessing.Queue()
+heart = 0
 
 class functionality:
     prevTime = 0
@@ -158,6 +159,11 @@ class functionality:
                 self.checkDoErrorUpdate(commandToDo)
             elif commandToDo[0] ==4 and autoUpdateCommand:
                 self.checkDoCommandUpdate(commandToDo)
+        if heart >= 10:
+            heart = 0
+            queueOut.put(HEARTBEAT)
+        else:
+            heart = heart + 1
         self.window.after(100, self.doFunctionality)
         
     def checkDoCommandUpdate(self, commandToDo):
