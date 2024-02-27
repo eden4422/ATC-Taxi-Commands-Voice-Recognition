@@ -6,6 +6,15 @@ class Word:
 class Sentence:
     def __init__(self):
         self.words = []
+        self.certainty_ranges = []
+
+    def __init__(self, certainty_ranges):
+        self.words = []
+        self.certainty_ranges = certainty_ranges
+
+    def __init__(self, certainty_ranges, words):
+        self.words = words
+        self.certainty_ranges = certainty_ranges
 
     def add_word(self, word):
         if not isinstance(word, Word):
