@@ -18,10 +18,14 @@ from myGUI import *
 from commands import *
 
 # main task that handles
-def thread_managing():
+def thread_managing(plane_id_list: list, time_out: int):
     
-    # Temp variable for airplane identifier
-    plane_ids = ["delta one two three", "united six seven eight", "delta five eight nine two"]
+    # Variables for heartbeat check across threads
+    coundown_left = 0
+    countdown_start = time_out
+
+    # Variable for airplane identifier
+    plane_ids = plane_id_list
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
@@ -38,20 +42,60 @@ def thread_managing():
     transComIn = multiprocessing.Queue()
     transComOut = multiprocessing.Queue()
 
+    listenHeartBeat = False
+    transHeartBeat = False
+    frontHeartBeat = False
+
     # Creating frontend process
-    frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut))
+    frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut, frontHeartBeat))
     
     print("Starting frontend process")
     frontend_process.start()
 
     # Creating audio listening process
-    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut))
+    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut, listenHeartBeat))
     
     # Creating audio transcribing process
-    audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
+    audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut, transHeartBeat))
     
     running = True
+
     while(running):
+
+        # Checking each thread to make sure they're still alive, and restarting the thread if it isn't
+        if not audio_listening_process.is_alive:
+            audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut, listenHeartBeat))
+            print('ERROR: audio listening process failed, restarting now')
+
+        if not frontend_process.is_alive:
+            frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut, frontHeartBeat))
+            print('ERROR: frontend process failed, restarting now')
+
+        if not audio_transcribing_process.is_alive:
+            audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut, transHeartBeat))
+            print('ERROR: audio transcribing process failed, restarting now')
+
+        # Checking heart beat after timeout has passed
+        coundown_left = coundown_left - 1
+        if coundown_left <= 0:
+            # Restarting threads if heartbeat queue is empty
+            if frontHeartBeat == True:
+                frontHeartBeat = False
+                frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut, frontHeartBeat))
+                print('ERROR: frontend process has timed out, restarting now')
+
+            if listenHeartBeat == True:
+                listenHeartBeat = False
+                audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut, listenHeartBeat))
+                print('ERROR: listening process has timed out, restarting now')
+
+            if transHeartBeat == True:
+                transHeartBeat = False
+                audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut, transHeartBeat))
+                print('ERROR: audio transcribing process has timed out, restarting now')
+            
+            coundown_left = countdown_start
+
         # If audio bit was recorded
         if not listenAudioOutQ.empty():
 
@@ -112,7 +156,7 @@ def thread_managing():
 if __name__ == "__main__":
 
     print("starting thread manager")
-    processMain = multiprocessing.Process(target=thread_managing)
+    processMain = multiprocessing.Process(target=thread_managing, args=( ["delta one two three", "united six seven eight", "delta five eight nine two"], 10000))
     processMain.start()
     processMain.join()
     print("threadmanager finished")

@@ -219,7 +219,7 @@ class functionality:
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
 
-def getGoing(inyago, outyago):
+def getGoing(inyago, outyago, heartBeat):
     global queueIn
     global queueOut
     queueIn = inyago
