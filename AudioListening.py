@@ -11,8 +11,11 @@ from commands import *
 
 
 # A class mocking actual functionality of audiolistening, by returning 
-def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out):
+def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBeat):
     
+    if heartBeat == False:
+        heartBeat = True
+
     muted = True
 
     file_number = 0
