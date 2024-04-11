@@ -40,3 +40,5 @@ def View_All():
         return "\n".join(items_list)
     else:
         return "Empty collection."
+
+

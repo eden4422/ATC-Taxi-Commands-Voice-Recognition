@@ -22,3 +22,5 @@ def Write_to_Mongo():
 
     # closes the mongoDB connection
     client.close()
+
+
