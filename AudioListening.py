@@ -31,7 +31,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBe
 
     def recordCallback(in_data, frames, time, status):
       
-        if not muted:
+        if muted != True:
             if status:
                 print(status, file=sys.stderr)
             q.put(bytes(in_data))
@@ -49,18 +49,27 @@ def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBe
     print("===> Begin recording. Press Ctrl+C to stop the recording ")
     try:
         recording_data = b''  # Accumulate audio data
-
+        
         with sd.RawInputStream(dtype='int16',
                             channels=1,
                             callback=recordCallback):
             while True:
-              
+                #print("listening")
+                #print(muted)
+                #print(heartBeat)
+                if heartBeat == False:
+                    heartBeat = True
+
                 if not audio_com_in.empty():
+                    
                     input = audio_com_in.get()
                     if input[0] == MUTE:
                         muted = not muted
-                if not q.empty():     
+
+                if not q.empty():   
+                     
                     data = q.get()
+                    #print(data) 
                     recording_data += data  # Accumulate audio data
                     if recognizer.AcceptWaveform(data):
                         recognizer_result = recognizer.Result()
