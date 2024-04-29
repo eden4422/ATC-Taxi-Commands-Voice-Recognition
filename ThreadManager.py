@@ -9,7 +9,6 @@ import Text_To_JSON
 import Mongo_Read_Data
 
 # local imports
-from JsonSaving import *
 from CommandTranscription import *
 from AudioListening import *
 from CommandTranscription import *
@@ -18,15 +17,7 @@ from myGUI import *
 from commands import *
 
 # main task that handles
-def thread_managing(plane_id_list: list, time_out: int):
-    
-    # Booleans representing different states
-    currentlyListening: bool = False
-    currentlyTranscribing: bool = False
-
-    # Variables for heartbeat check across threads
-    countdown_left = 0
-    countdown_start = time_out
+def thread_managing(plane_id_list: list):
 
     # Variable for airplane identifier
     plane_ids = plane_id_list
@@ -69,6 +60,7 @@ def thread_managing(plane_id_list: list, time_out: int):
         # If audio bit was recorded
         if not listen_audio_outQ.empty():
             print("recorded audio found")
+
             # Pull audioClip from queue and add to transQ
             audio_clip_found = listen_audio_outQ.get()
             trans_audio_inQ.put(audio_clip_found)
@@ -97,8 +89,6 @@ def thread_managing(plane_id_list: list, time_out: int):
                 listen_com_in.put((KILLSELF,"kill self"))
                 trans_com_in.put((KILLSELF,"kill self"))
 
-                currentlyTranscribing = False
-                currentlyListening = False
 
                 print("Awaiting threads to kill selves")
 
@@ -111,11 +101,9 @@ def thread_managing(plane_id_list: list, time_out: int):
             elif output[0] == START:
                 print("Starting audio listening process")
                 audio_listening_process.start()
-                currentlyListening = True
 
                 print("Starting audio transcribing process")
                 audio_transcribing_process.start()
-                currentlyTranscribing = True
 
         # If message recieved from listener
         elif not listen_com_out.empty():
@@ -136,7 +124,7 @@ if __name__ == "__main__":
     print("starting thread manager")
     process_main = multiprocessing.Process(
         target=thread_managing, 
-        args=( ["delta one two three", "united six seven eight", "delta five eight nine two"], 10000)
+        args=( ["delta one two three"])
         )
     
     process_main.start()
