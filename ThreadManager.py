@@ -121,10 +121,16 @@ def thread_managing(plane_id_list: list):
 
 if __name__ == "__main__":
 
+    planeID = ""
+
+    with open("planeID.txt", "r") as file:
+        planeID = file.read().replace("\n", "")
+
     print("starting thread manager")
+    
     process_main = multiprocessing.Process(
         target=thread_managing, 
-        args=( ["delta one two three"])
+        args=( [planeID])
         )
     
     process_main.start()

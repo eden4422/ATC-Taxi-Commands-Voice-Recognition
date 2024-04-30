@@ -13,6 +13,8 @@ from commands import *
 # A class mocking actual functionality of audiolistening, by returning 
 def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBeat):
     
+    print(f"Listening for following planeID : {flight_IDs}")
+
     if heartBeat == False:
         heartBeat = True
 
@@ -38,6 +40,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBe
 
     # build the model and recognizer objects.
     print("===> Build the model and recognizer objects.  This will take a few minutes.")
+
     model = Model("vosk-model-small-en-us-0.15")
     recognizer = KaldiRecognizer(model, samplerate)
     recognizer.SetWords(True)
