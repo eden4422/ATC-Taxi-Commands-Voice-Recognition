@@ -1,7 +1,12 @@
 {
-  "date": "2024-05-01 06:36:05.475249",
-  "FlightID": "delta 123",
-  "Command": [],
+  "date": "2024-05-01 11:59:57.475862",
+  "FlightID": "alaska 123",
+  "Command": [
+    "had",
+    "run",
+    "had",
+    "taxi"
+  ],
   "Runway": null,
   "Tower": null
 }

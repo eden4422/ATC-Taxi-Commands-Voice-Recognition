@@ -9,6 +9,7 @@ import os
 import tempfile
 import fasteners
 import shutil
+from ttkthemes import ThemedStyle
 
 onlyRecentMode = True
 autoUpdateCommand = True
