@@ -4,7 +4,7 @@ import re
 def split_terms(split_words: list, dictionary: dict):
     split_result: list = []
     split_words.reverse()
-    words_so_far: list = []
+    wordssofar: list = []
 
     print(split_words)
 
@@ -12,16 +12,16 @@ def split_terms(split_words: list, dictionary: dict):
         print(word)
 
         if word in dictionary:
-            words_so_far.reverse()
-            tuple_to_add = (word,words_so_far)
+            wordssofar.reverse()
+            tuple_to_add = (word,wordssofar)
             print(tuple_to_add)
             split_result.append(tuple_to_add)
 
-            words_so_far = []
+            wordssofar = []
 
         else:
-            words_so_far.append(word)
-            print(words_so_far)
+            wordssofar.append(word)
+            print(wordssofar)
 
     split_result.reverse()
     return split_result

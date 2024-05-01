@@ -11,16 +11,11 @@ from commands import *
 
 
 # A class mocking actual functionality of audiolistening, by returning 
-def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBeat):
+def listen_for_audio(flight_IDs, audiobitQ, audioComIn, audioComOut):
     
-    print(f"Listening for following planeID : {flight_IDs}")
-
-    if heartBeat == False:
-        heartBeat = True
-
     muted = True
 
-    file_number = 0
+    fileNum = 0
     # get the samplerate - this is needed by the Kaldi recognizer
     device_info = sd.query_devices(sd.default.device[0], 'input')
     samplerate = int(device_info['default_samplerate'])
@@ -31,16 +26,15 @@ def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBe
     # setup queue and callback function
     q = queue.Queue()
 
-    def recordCallback(in_data, frames, time, status):
+    def recordCallback(indata, frames, time, status):
       
-        if muted != True:
+        if not muted:
             if status:
                 print(status, file=sys.stderr)
-            q.put(bytes(in_data))
+            q.put(bytes(indata))
 
     # build the model and recognizer objects.
     print("===> Build the model and recognizer objects.  This will take a few minutes.")
-
     model = Model("vosk-model-small-en-us-0.15")
     recognizer = KaldiRecognizer(model, samplerate)
     recognizer.SetWords(True)
@@ -52,54 +46,38 @@ def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBe
     print("===> Begin recording. Press Ctrl+C to stop the recording ")
     try:
         recording_data = b''  # Accumulate audio data
-        
+
         with sd.RawInputStream(dtype='int16',
                             channels=1,
                             callback=recordCallback):
             while True:
-                #print("listening")
-                #print(muted)
-                #print(heartBeat)
-                if heartBeat == False:
-                    heartBeat = True
-
-                if not audio_com_in.empty():
-                    
-                    input = audio_com_in.get()
+              
+                if not audioComIn.empty():
+                    input = audioComIn.get()
                     if input[0] == MUTE:
                         muted = not muted
-
-                if not q.empty():   
-                     
+                if not q.empty():     
                     data = q.get()
-                    #print(data) 
                     recording_data += data  # Accumulate audio data
                     if recognizer.AcceptWaveform(data):
-                        recognizer_result = recognizer.Result()
+                        recognizerResult = recognizer.Result()
                         # convert the recognizerResult string into a dictionary
-                        result_dict = json.loads(recognizer_result)
+                        resultDict = json.loads(recognizerResult)
+                        resultText: str = resultDict["text"]
+                        print(resultText)
+                        audioComOut.put(("allAudio", resultText))
 
-                        # added array of touples that 
-                        for words in result_dict["result"]:
-                            confidence_touples = (words["conf"],words["word"])
-                            print(confidence_touples)
-                            
-
-                        result_text: str = result_dict["text"]
-                        print(result_text)
-                        audio_com_out.put(("allAudio", result_text))
-
-                        if any(ID in result_text for ID in flight_IDs):
+                        if any(ID in resultText for ID in flight_IDs):
 
                             # Save the accumulated audio data to a WAV file
-                            with wave.open(f'output{file_number}.wav', 'w') as wf:
+                            with wave.open(f'output{fileNum}.wav', 'w') as wf:
                                 wf.setnchannels(1)
                                 wf.setsampwidth(2)
                                 wf.setframerate(samplerate)
                                 wf.writeframes(recording_data[-frame_limit:])
-                                file_number += 1
-                                if file_number == 100:
-                                    file_number = 0
+                                fileNum += 1
+                                if fileNum == 100:
+                                    fileNum = 0
                                     
                             audiobitQ.put((recording_data,samplerate))
 
@@ -107,7 +85,7 @@ def listen_for_audio(flight_IDs, audiobitQ, audio_com_in, audio_com_out, heartBe
 
                         else:
                             recording_data = b''
-                            print("no flight ID found")
+                            print("no input sound")
 
     except KeyboardInterrupt:
         print('===> Finished Recording')

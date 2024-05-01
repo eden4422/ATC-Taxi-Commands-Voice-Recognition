@@ -9,6 +9,7 @@ import Text_To_JSON
 import Mongo_Read_Data
 
 # local imports
+from JsonSaving import *
 from CommandTranscription import *
 from AudioListening import *
 from CommandTranscription import *
@@ -17,78 +18,67 @@ from myGUI import *
 from commands import *
 
 # main task that handles
-def thread_managing(plane_id_list: list):
-
-    # Variable for airplane identifier
-    plane_ids = plane_id_list
+def thread_managing():
+    
+    # Temp variable for airplane identifier
+    plane_ids = ["delta one two three", "united six seven eight", "delta five eight nine two"]
 
     # Initializing pipes, queues, etc
-    front_com_in = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
-    front_com_out = multiprocessing.Queue() 
+    frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
+    frontComOut = multiprocessing.Queue() 
 
-    listen_audio_outQ = multiprocessing.Queue() # audio queue, used by audio_listening -> thread_manager
+    listenAudioOutQ = multiprocessing.Queue() # audio queue, used by audio_listening -> thread_manager
     
-    listen_com_in = multiprocessing.Queue() # audio comm in
-    listen_com_out = multiprocessing.Queue() # audio comm out
+    listenComIn = multiprocessing.Queue() # audio comm in
+    listenComOut = multiprocessing.Queue() # audio comm out
     
-    trans_audio_inQ = multiprocessing.Queue()
-    trans_text_outQ = multiprocessing.Queue() # 
+    transAudioInQ = multiprocessing.Queue()
+    transTextOutQ = multiprocessing.Queue() # 
 
-    trans_com_in = multiprocessing.Queue()
-    trans_com_out = multiprocessing.Queue()
-
-    listen_heart_beat: multiprocessing.Value = False
-    trans_heart_beat: multiprocessing.Value = False
-    front_heart_beat: multiprocessing.Value = False
+    transComIn = multiprocessing.Queue()
+    transComOut = multiprocessing.Queue()
 
     # Creating frontend process
-    frontend_process = multiprocessing.Process(target=getGoing, args=(front_com_in, front_com_out, front_heart_beat))
+    frontend_process = multiprocessing.Process(target=getGoing, args=(frontComIn, frontComOut))
     
     print("Starting frontend process")
     frontend_process.start()
 
     # Creating audio listening process
-    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listen_audio_outQ, listen_com_in, listen_com_out, listen_heart_beat))
+    audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut))
     
     # Creating audio transcribing process
-    audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(trans_audio_inQ, trans_text_outQ, trans_com_in, trans_com_out, trans_heart_beat))
+    audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
     
     running = True
-
     while(running):
-        
         # If audio bit was recorded
-        if not listen_audio_outQ.empty():
-            print("recorded audio found")
+        if not listenAudioOutQ.empty():
 
             # Pull audioClip from queue and add to transQ
-            audio_clip_found = listen_audio_outQ.get()
-            trans_audio_inQ.put(audio_clip_found)
+            audioClipFound = listenAudioOutQ.get()
+            transAudioInQ.put(audioClipFound)
             
         # If text was successfully transcribed
-        elif not trans_text_outQ.empty():
-            
-            print(" audio transcribed")
-            transcribed_text = trans_text_outQ.get()
-            phoentetic_text = Text_To_JSON.phonetic_command_translator(transcribed_text)
+        elif not transTextOutQ.empty():
+            transcribedText = transTextOutQ.get()
+            phoentetic_text = Text_To_JSON.phonetic_command_translator(transcribedText)
             parsed_text = Text_To_JSON.parse_taxi_command(phoentetic_text)
             Text_To_JSON.save_to_JSON(parsed_text)
             JSON_to_Mongo.Write_to_Mongo()
-            print("Transcribed Text: "+transcribed_text )
-            front_com_in.put((update_command_box,transcribed_text))
+            print("Transcribed Text: "+transcribedText )
+            frontComIn.put((updateCommandBox,transcribedText))
 
 
 
         # If message recieved from frontend
-        elif not front_com_out.empty():
-            print("frontend command")
-            output = front_com_out.get()
+        elif not frontComOut.empty():
+            output = frontComOut.get()
             
             if output[0] == KILLCHILDREN:
-                front_com_in.put((KILLSELF,"kill self"))
-                listen_com_in.put((KILLSELF,"kill self"))
-                trans_com_in.put((KILLSELF,"kill self"))
-
+                frontComIn.put((KILLSELF,"kill self"))
+                listenComIn.put((KILLSELF,"kill self"))
+                transComIn.put((KILLSELF,"kill self"))
 
                 print("Awaiting threads to kill selves")
 
@@ -96,7 +86,7 @@ def thread_managing(plane_id_list: list):
 
             elif output[0] == MUTE:
                 print("toggle mute")
-                listen_com_in.put((MUTE,"toggle mute"))
+                listenComIn.put((MUTE,"toggle mute"))
 
             elif output[0] == START:
                 print("Starting audio listening process")
@@ -106,33 +96,23 @@ def thread_managing(plane_id_list: list):
                 audio_transcribing_process.start()
 
         # If message recieved from listener
-        elif not listen_com_out.empty():
-            output = listen_com_out.get()
+        elif not listenComOut.empty():
+            output = listenComOut.get()
                 
             if output[0] == "allAudio":
-                front_com_in.put((updateAllSpeechBox,output[1]))
+                frontComIn.put((updateAllSpeechBox,output[1]))
                 print(output)
             
         # If message recieved from transcriber
-        elif not trans_com_out.empty():
+        elif not transComOut.empty():
             pass
         
         
 
 if __name__ == "__main__":
 
-    planeID = ""
-
-    with open("planeID.txt", "r") as file:
-        planeID = file.read().replace("\n", "")
-
     print("starting thread manager")
-    
-    process_main = multiprocessing.Process(
-        target=thread_managing, 
-        args=( [planeID])
-        )
-    
-    process_main.start()
-    process_main.join()
+    processMain = multiprocessing.Process(target=thread_managing)
+    processMain.start()
+    processMain.join()
     print("threadmanager finished")

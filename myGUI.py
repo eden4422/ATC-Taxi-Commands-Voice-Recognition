@@ -132,19 +132,16 @@ pullRecentButton.bind("<Button-1>", handlePullRecent)
 
 queueIn = multiprocessing.Queue()
 queueOut = multiprocessing.Queue()
-heart = 0
 
 class functionality:
     prevTime = 0
     currTime = 1
-    def __init__(self, window, cBox, aBox, eBox, heart):
+    def __init__(self, window, cBox, aBox, eBox):
         self.window = window
         self.cBox = cBox
         self.aBox = aBox
         self.eBox = eBox
         self.counter = 1
-        self.heart = heart
-
     def doFunctionality(self):
         # this is where we route to specific functionality
         #self.checkDoCommandUpdate()
@@ -161,10 +158,6 @@ class functionality:
                 self.checkDoErrorUpdate(commandToDo)
             elif commandToDo[0] ==4 and autoUpdateCommand:
                 self.checkDoCommandUpdate(commandToDo)
-        
-        if self.heart == False:
-            self.heart = True
-
         self.window.after(100, self.doFunctionality)
         
     def checkDoCommandUpdate(self, commandToDo):
@@ -226,7 +219,7 @@ class functionality:
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
 
-def getGoing(inyago, outyago, heartBeat):
+def getGoing(inyago, outyago):
     global queueIn
     global queueOut
     queueIn = inyago
@@ -234,7 +227,7 @@ def getGoing(inyago, outyago, heartBeat):
     commandsBox.config(state="disabled")
     allSpeechBox.config(state="disabled")
     errorBox.config(state="disabled")
-    doFunct = functionality(window, commandsBox, allSpeechBox, errorBox, heartBeat)
+    doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
     doFunct.doFunctionality()
     window.mainloop()
 
