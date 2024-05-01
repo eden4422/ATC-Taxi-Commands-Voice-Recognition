@@ -28,14 +28,14 @@ def thread_managing():
         with open('settings.json', 'r') as json_file:
             settings_data = json.load(json_file)
             plane_id = settings_data['plane_id']
-            return plane_id
+            
     except FileNotFoundError:
         print("settings.json not found. Make sure the file exists.")
-        return None
+        
     except KeyError:
         print("Error: 'plane_id' key not found in settings.json.")
-        return None
-    plane_ids = ["delta one two three", "united six seven eight", "delta five eight nine two"]
+        
+    plane_ids = [plane_id]
 
     # Initializing pipes, queues, etc
     frontComIn = multiprocessing.Queue() # frontend queue, used by thread manager -> frontend
@@ -123,6 +123,11 @@ def thread_managing():
 
                 listenComIn.put((KILLSELF,"kill self"))
                 transComIn.put((KILLSELF,"kill self"))
+
+                time.sleep(2)
+
+                audio_listening_process.kill()
+                audio_transcribing_process.kill()
             
 
 

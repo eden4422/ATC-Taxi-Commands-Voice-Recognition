@@ -289,8 +289,7 @@ class functionality:
             
         enter_button = tkinter.Button(settings_window, text="Enter", command=handleEnterButton)
         enter_button.grid(row=5, column=0, columnspan=2, pady=10)
-
-        settings_window.mainloop()   
+ 
 
 
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
