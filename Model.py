@@ -12,29 +12,17 @@ def trans_model(audio_tuple, model_link, output_text_queue, error_queue):
         audio_data = audio_tuple[0]
         sample_rate = audio_tuple[1]
 
-        print("modeloutput:")
-        print(audio_data)
-
         recognizer = KaldiRecognizer(model, sample_rate)
-        print(1)
         
         recognizer.SetWords(False)
-        print(2)
 
         recognizer.AcceptWaveform(audio_data)  # Accept the entire waveform
-        print(3)
         
         result = recognizer.Result()
         
         result_dict: dict = json.loads(result)
         
         output_text: str = result_dict['text']
-
-        print(result)
-        print(result_dict)
-
-        print("modeloutput:")
-        print(output_text)
 
         output_text_queue.put(output_text)
 

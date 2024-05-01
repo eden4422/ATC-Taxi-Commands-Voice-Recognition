@@ -1,10 +1,14 @@
 import tkinter
 import time
-import os
 import multiprocessing
 from commands import *
 import Mongo_Read_Data
 import JSON_to_Mongo
+import json
+import os
+import tempfile
+import fasteners
+import shutil
 
 onlyRecentMode = True
 autoUpdateCommand = True
@@ -33,8 +37,6 @@ autoUpdateCommandButton = tkinter.Button(master=bottomFrame, text="Auto Update: 
 endButton = tkinter.Button(master=bottomFrame, text="End")
 pullRecentButton = tkinter.Button(master=bottomFrame, text="Most Recent")
 pullAllCommandsButton = tkinter.Button(master=bottomFrame, text="All Commands")
-errorBox = tkinter.Text(master=bottomFrame, width=30, height=15, borderwidth=1, relief="raised")
-
 containingFrame.pack(padx=5, pady=5, fill=tkinter.BOTH, expand=True)
 topFrame.pack(fill=tkinter.BOTH, expand=True)
 bottomFrame.pack(fill=tkinter.BOTH)
@@ -50,12 +52,44 @@ startButton.pack(side=tkinter.LEFT)
 endButton.pack(side=tkinter.LEFT)
 pullRecentButton.pack(side=tkinter.LEFT)
 pullAllCommandsButton.pack(side=tkinter.LEFT)
-errorBox.pack(side=tkinter.LEFT, fill=tkinter.X, expand=True)
+#______________________________________________________________________________________
+# Create a new frame for the flight id input
+flightIdFrame = tkinter.Frame(master=window)  # Change containingFrame to window
+flightIdLabel = tkinter.Label(master=flightIdFrame, text="Flight ID")
+flightIdBox = tkinter.Text(master=flightIdFrame, width=20, height=1, borderwidth=1, relief="raised")  # Reduced width
+
+def overwrite_json():
+    flight_id = flightIdBox.get("1.0", "end-1c")
+    data = {"flight_id": flight_id}
+
+    # Create a lock file
+    lock = fasteners.InterProcessLock('flight_id.json.lock')
+
+    with lock:
+        # Create a temporary file and write the data to it
+        with tempfile.NamedTemporaryFile('w', delete=False) as f:
+            json.dump(data, f)
+            tempname = f.name
+
+        # Rename the temporary file to flight_id.json
+        # This operation is atomic, so flight_id.json will never be empty
+        shutil.move(tempname, 'flight_id.json')
+
+    flightIdBox.delete("1.0", tkinter.END)
+
+overwriteButton = tkinter.Button(master=flightIdFrame, text="Change ID", command=overwrite_json)  # Change bottomFrame to flightIdFrame
+
+# Pack the new elements into the GUI
+flightIdFrame.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
+flightIdLabel.pack()
+flightIdBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
+overwriteButton.pack(side=tkinter.LEFT)  # This will now pack the overwriteButton into the flightIdFrame
+
 
 
 #make sure your event handler appears above any bindings, or it won't recognize it
 #put handlers in here for organization
-def handleMuteClick(event):
+def handle_mute_click(event):
     #I assume the easiest thing to do would just be to stop accepting input from the mic, or turn it off
     if muteButton.cget("text") == "Unmute":
         muteButton.config(text="Mute")
@@ -64,33 +98,34 @@ def handleMuteClick(event):
         muteButton.config(text="Unmute")
         queueOut.put((MUTE, "Muted"))
 
-def handleStartClick(event):
+def handle_start_click(event):
     queueOut.put((START, "Start"))
 
-def handleEndClick(event):
+def handle_end_click(event):
     queueOut.put((KILLCHILDREN, "End"))
 
-def handlePullAll(event):
+def handle_pull_all(event):
     commandsBox.config(state="normal")
     # do your query here and stick it in the variable
-    textToPut = Mongo_Read_Data.View_All()
+    text_to_put = Mongo_Read_Data.View_All()
     commandsBox.delete("1.0", tkinter.END)
-    commandsBox.insert(tkinter.END, textToPut)
+    commandsBox.insert(tkinter.END, text_to_put)
     commandsBox.config(state="disabled")
     global onlyRecentMode
     onlyRecentMode = False
 
-def handlePullRecent(event):
+def handle_pull_recent(event):
     commandsBox.config(state="normal")
     # do your query here and stick it in the variable
-    textToPut = Mongo_Read_Data.View_Most_Recent()
+    text_to_put = Mongo_Read_Data.View_Most_Recent()
     commandsBox.delete("1.0", tkinter.END)
-    commandsBox.insert(tkinter.END, textToPut)
+    commandsBox.insert(tkinter.END, text_to_put)
     commandsBox.config(state="disabled")
     global onlyRecentMode
     onlyRecentMode = True
 
-def handleAutoUpdate(event):
+def handle_auto_update(event):
+    global autoUpdateCommand
     if autoUpdateCommand == True:
         autoUpdateCommand = False
         autoUpdateCommandButton.config(text="Auto Update: Off")
@@ -98,18 +133,16 @@ def handleAutoUpdate(event):
         autoUpdateCommand = True
         autoUpdateCommand.config(text="Auto Update: On")
 
-
-
-
 #This is how you bind something. The first argument is the event that you want something to happen on (left click in this case),
 #and the second is what you want to have happen.
 #Please put all your bindings here
-muteButton.bind("<Button-1>", handleMuteClick)
-startButton.bind("<Button-1>", handleStartClick)
-autoUpdateCommandButton.bind("<Button-1>", handleAutoUpdate)
-endButton.bind("<Button-1>", handleEndClick)
-pullAllCommandsButton.bind("<Button-1>", handlePullAll)
-pullRecentButton.bind("<Button-1>", handlePullRecent)
+button1 = "<Button-1>"
+muteButton.bind(button1, handle_mute_click)
+startButton.bind(button1, handle_start_click)
+autoUpdateCommandButton.bind(button1, handle_auto_update)
+endButton.bind(button1, handle_end_click)
+pullAllCommandsButton.bind(button1, handle_pull_all)
+pullRecentButton.bind(button1, handle_pull_recent)
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 #Tkinter demo of some functionality that I need for reference.
@@ -134,33 +167,31 @@ queueIn = multiprocessing.Queue()
 queueOut = multiprocessing.Queue()
 
 class functionality:
-    prevTime = 0
-    currTime = 1
-    def __init__(self, window, cBox, aBox, eBox):
+    prev_time = 0
+    curr_time = 1
+    def __init__(self, window, c_box, a_box):
         self.window = window
-        self.cBox = cBox
-        self.aBox = aBox
-        self.eBox = eBox
+        self.c_box = c_box
+        self.a_box = a_box
         self.counter = 1
-    def doFunctionality(self):
+    def do_functionality(self):
         # this is where we route to specific functionality
         #self.checkDoCommandUpdate()
         #self.checkDoAllSpeechUpdate()
         #self.checkDoErrorUpdate()
         while not queueIn.empty():
-            commandToDo = queueIn.get()
-            print(commandToDo[0])
-            if commandToDo[0] == 1:
-                self.checkDoErrorUpdate(commandToDo)
-            elif commandToDo[0] == 2:
-                self.checkDoAllSpeechUpdate(commandToDo)
-            elif commandToDo[0] == 3:
-                self.checkDoErrorUpdate(commandToDo)
-            elif commandToDo[0] ==4 and autoUpdateCommand:
-                self.checkDoCommandUpdate(commandToDo)
-        self.window.after(100, self.doFunctionality)
+            command_to_do = queueIn.get()
+            if command_to_do[0] == 1:
+                self.check_do_error_update(command_to_do)
+            elif command_to_do[0] == 2:
+                self.check_do_all_speech_update(command_to_do)
+            elif command_to_do[0] == 3:
+                self.check_do_error_update(command_to_do)
+            elif command_to_do[0] ==4 and autoUpdateCommand:
+                self.check_do_command_update(command_to_do)
+        self.window.after(100, self.do_functionality)
         
-    def checkDoCommandUpdate(self, commandToDo):
+    def check_do_command_update(self, command_to_do):
         #example of updating. Instead of doing a counter, check the JSON
         # self.cBox.config(state="normal")
         
@@ -190,45 +221,44 @@ class functionality:
         #depending on the mode its in, itll do a different thing.
         if onlyRecentMode:
             # do your query here and stick it in the variable
-            textToPut = Mongo_Read_Data.View_Most_Recent()
+            text_to_put = Mongo_Read_Data.View_Most_Recent()
             commandsBox.delete("1.0", tkinter.END)
-            commandsBox.insert(tkinter.END, textToPut)
+            commandsBox.insert(tkinter.END, text_to_put)
             commandsBox.config(state="disabled")
         else:
             commandsBox.config(state="normal")
             # do your query here and stick it in the variable
-            textToPut = Mongo_Read_Data.View_All()
+            text_to_put = Mongo_Read_Data.View_All()
             commandsBox.delete("1.0", tkinter.END)
-            commandsBox.insert(tkinter.END, textToPut)
+            commandsBox.insert(tkinter.END, text_to_put)
             commandsBox.config(state="disabled")
 
-    def checkDoAllSpeechUpdate(self, command):
+    def check_do_all_speech_update(self, command):
         # stick them into the text box
-        self.aBox.config(state="normal")
-        self.aBox.insert(tkinter.END, "\n" + command[1])
-        self.aBox.config(state="disabled")
+        self.a_box.config(state="normal")
+        self.a_box.insert(tkinter.END, "\n" + command[1])
+        self.a_box.config(state="disabled")
 
-    def checkDoErrorUpdate(self, command):
+    def check_do_error_update(self, command):
         #This is set up to add to the box, if you want to change it to 
-        self.eBox.config(state="normal")
-        self.eBox.insert(tkinter.END, "\n" + command[1])
-        self.eBox.config(state="disabled")
+        self.e_box.config(state="normal")
+        self.e_box.insert(tkinter.END, "\n" + command[1])
+        self.e_box.config(state="disabled")
 
         
 
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
 
-def getGoing(inyago, outyago):
+def get_going(inyago, outyago):
     global queueIn
     global queueOut
     queueIn = inyago
     queueOut = outyago
     commandsBox.config(state="disabled")
     allSpeechBox.config(state="disabled")
-    errorBox.config(state="disabled")
-    doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
-    doFunct.doFunctionality()
+    do_funct = functionality(window, commandsBox, allSpeechBox)
+    do_funct.do_functionality()
     window.mainloop()
 
 # queue has a tuple with the type of thing and the actual stuff in the second element

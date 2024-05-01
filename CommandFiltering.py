@@ -1,34 +1,24 @@
 import re
 
-
 def split_terms(split_words: list, dictionary: dict):
     split_result: list = []
     split_words.reverse()
     wordssofar: list = []
 
-    print(split_words)
-
     for word in split_words:
-        print(word)
 
         if word in dictionary:
             wordssofar.reverse()
             tuple_to_add = (word,wordssofar)
-            print(tuple_to_add)
             split_result.append(tuple_to_add)
-
             wordssofar = []
-
         else:
             wordssofar.append(word)
-            print(wordssofar)
 
     split_result.reverse()
     return split_result
 
-
 # Example usage:
-
 def remove_before_target_phrase(input_list, target_phrase):
     # Find the index of the target phrase in the list
     index_of_target = next((i for i, phrase in enumerate(input_list) if target_phrase in phrase), None)
@@ -91,8 +81,3 @@ result_segments = remove_before_target_phrase(result_segments, plane_id)
 result_segments.remove(plane_id)
 
 result_segments = list_to_dict(result_segments)
-
-
-print(result_segments)
-
-

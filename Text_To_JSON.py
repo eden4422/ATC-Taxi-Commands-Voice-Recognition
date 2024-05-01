@@ -255,5 +255,3 @@ def save_to_JSON(result_parsed):
         file.write(json_commands)
 
 text = phonetic_command_translator("delta 623, in the event of missed approach, taxiing aircraft right of runway one")
-print(text)
-print(parse_taxi_command(text))
