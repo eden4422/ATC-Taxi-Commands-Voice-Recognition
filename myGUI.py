@@ -22,6 +22,10 @@ autoUpdateCommand = True
 
 # This whole section is really just formatting
 window = tkinter.Tk()
+
+style = ThemedStyle(window)
+style.set_theme("equilux")
+
 containingFrame = tkinter.Frame(master=window)
 topFrame = tkinter.Frame(master=containingFrame)
 bottomFrame = tkinter.Frame(master=containingFrame)
