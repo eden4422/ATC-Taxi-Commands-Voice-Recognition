@@ -5,6 +5,10 @@ import multiprocessing
 from commands import *
 import Mongo_Read_Data
 import JSON_to_Mongo
+from ttkthemes import ThemedStyle
+
+
+
 
 onlyRecentMode = True
 autoUpdateCommand = True
@@ -18,6 +22,10 @@ autoUpdateCommand = True
 
 # This whole section is really just formatting
 window = tkinter.Tk()
+
+style = ThemedStyle(window)
+style.set_theme("equilux")
+
 containingFrame = tkinter.Frame(master=window)
 topFrame = tkinter.Frame(master=containingFrame)
 bottomFrame = tkinter.Frame(master=containingFrame)
