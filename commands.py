@@ -7,6 +7,7 @@ updateCommandBox = 4
 #for messages sent by the GUI
 MUTE = 10
 START = 20
+STOP = 50
 KILLCHILDREN = 30
 unmuteMic = 40
 

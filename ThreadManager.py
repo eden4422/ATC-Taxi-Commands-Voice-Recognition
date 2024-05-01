@@ -9,11 +9,10 @@ import Text_To_JSON
 import Mongo_Read_Data
 
 # local imports
-from JsonSaving import *
 from CommandTranscription import *
 from AudioListening import *
 from CommandTranscription import *
-from QueueKeys import *
+
 from myGUI import *
 from commands import *
 
@@ -90,10 +89,19 @@ def thread_managing():
 
             elif output[0] == START:
                 print("Starting audio listening process")
+                audio_listening_process = multiprocessing.Process(target=listen_for_audio, args=(plane_ids, listenAudioOutQ, listenComIn, listenComOut))
                 audio_listening_process.start()
 
                 print("Starting audio transcribing process")
+                audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
                 audio_transcribing_process.start()
+            elif output[0] == STOP:
+                print("Stopping listening, going on standby")
+
+                listenComIn.put((KILLSELF,"kill self"))
+                transComIn.put((KILLSELF,"kill self"))
+                
+
 
         # If message recieved from listener
         elif not listenComOut.empty():
