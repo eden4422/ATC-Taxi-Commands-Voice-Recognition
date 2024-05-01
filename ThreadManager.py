@@ -16,6 +16,8 @@ from CommandTranscription import *
 from myGUI import *
 from commands import *
 
+import time
+
 # main task that handles
 def thread_managing():
     
@@ -75,9 +77,16 @@ def thread_managing():
             output = frontComOut.get()
             
             if output[0] == KILLCHILDREN:
-                frontComIn.put((KILLSELF,"kill self"))
+                frontend_process.kill()
+                
                 listenComIn.put((KILLSELF,"kill self"))
                 transComIn.put((KILLSELF,"kill self"))
+
+                time.sleep(2)
+
+                audio_listening_process.kill()
+                audio_transcribing_process.kill()
+
 
                 print("Awaiting threads to kill selves")
 
@@ -95,12 +104,13 @@ def thread_managing():
                 print("Starting audio transcribing process")
                 audio_transcribing_process = multiprocessing.Process(target=transcribe_audio, args=(transAudioInQ, transTextOutQ, transComIn, transComOut))
                 audio_transcribing_process.start()
+            
             elif output[0] == STOP:
                 print("Stopping listening, going on standby")
 
                 listenComIn.put((KILLSELF,"kill self"))
                 transComIn.put((KILLSELF,"kill self"))
-                
+            
 
 
         # If message recieved from listener

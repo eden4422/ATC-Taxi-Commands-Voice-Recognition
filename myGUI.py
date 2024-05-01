@@ -36,9 +36,10 @@ muteButton = tkinter.Button(master=bottomFrame, text="Unmute", width = 6)
 startButton = tkinter.Button(master=bottomFrame, text="Start")
 autoUpdateCommandButton = tkinter.Button(master=bottomFrame, text="Auto Update: On")
 endButton = tkinter.Button(master=bottomFrame, text="End")
-pullRecentButton = tkinter.Button(master=bottomFrame, text="Most Recent")
-pullAllCommandsButton = tkinter.Button(master=bottomFrame, text="All Commands")
-errorBox = tkinter.Text(master=bottomFrame, width=30, height=15, borderwidth=1, relief="raised")
+pullRecentButton = tkinter.Button(master=bottomFrame, text="Display Most Recent Command")
+pullAllCommandsButton = tkinter.Button(master=bottomFrame, text="Display All Past")
+quitButton = tkinter.Button(master=bottomFrame, text="Quit")
+#errorBox = tkinter.Text(master=bottomFrame, width=30, height=15, borderwidth=1, relief="raised")
 
 containingFrame.pack(padx=5, pady=5, fill=tkinter.BOTH, expand=True)
 topFrame.pack(fill=tkinter.BOTH, expand=True)
@@ -51,11 +52,12 @@ allSpeechBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 commandsBox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
 muteButton.pack(side=tkinter.LEFT)
 startButton.pack(side=tkinter.LEFT)
+quitButton.pack(side=tkinter.LEFT)
 #autoUpdateCommandButton.pack(side=tkinter.LEFT)
 endButton.pack(side=tkinter.LEFT)
 pullRecentButton.pack(side=tkinter.LEFT)
 pullAllCommandsButton.pack(side=tkinter.LEFT)
-errorBox.pack(side=tkinter.LEFT, fill=tkinter.X, expand=True)
+#errorBox.pack(side=tkinter.LEFT, fill=tkinter.X, expand=True)
 
 
 #make sure your event handler appears above any bindings, or it won't recognize it
@@ -73,7 +75,10 @@ def handleStartClick(event):
     queueOut.put((START, "Start"))
 
 def handleEndClick(event):
-    queueOut.put((commands.STOP, "End"))
+    queueOut.put((commands.STOP, "Stop transmission"))
+
+def handleQuitClick(event):
+    queueOut.put((commands.KILLCHILDREN, "Kill all child threads"))
 
 def handlePullAll(event):
     commandsBox.config(state="normal")
@@ -115,6 +120,8 @@ autoUpdateCommandButton.bind("<Button-1>", handleAutoUpdate)
 endButton.bind("<Button-1>", handleEndClick)
 pullAllCommandsButton.bind("<Button-1>", handlePullAll)
 pullRecentButton.bind("<Button-1>", handlePullRecent)
+
+quitButton.bind("<Button-1>", handleQuitClick)
 
 #--------------------------------------------------------------------------------------------------------------------------------------
 #Tkinter demo of some functionality that I need for reference.
@@ -231,8 +238,8 @@ def getGoing(inyago, outyago):
     queueOut = outyago
     commandsBox.config(state="disabled")
     allSpeechBox.config(state="disabled")
-    errorBox.config(state="disabled")
-    doFunct = functionality(window, commandsBox, allSpeechBox, errorBox)
+    #errorBox.config(state="disabled")
+    doFunct = functionality(window, commandsBox, allSpeechBox, commandsBox)
     doFunct.doFunctionality()
     window.mainloop()
 
