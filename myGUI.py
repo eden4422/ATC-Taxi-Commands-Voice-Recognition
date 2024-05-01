@@ -6,6 +6,8 @@ from commands import *
 import Mongo_Read_Data
 import JSON_to_Mongo
 
+import json
+
 import commands 
 
 
@@ -226,7 +228,70 @@ class functionality:
         self.eBox.insert(tkinter.END, "\n" + command[1])
         self.eBox.config(state="disabled")
 
-        
+    def updateSettings(plane_id, model1, model2, model3, server_port):
+        # Define a dictionary with the settings to be updated
+        settings_data = {
+            "plane_id": plane_id,
+            "model_path_one": model1,
+            "model_path_two" : model2,
+            "model_path_three" : model3,
+            "port": server_port
+        }
+
+        # Write the settings data to the JSON file (create if not existing)
+        with open("settings.json", "w") as json_file:
+            json.dump(settings_data, json_file, indent=4)
+
+    def openSettingsWindow():
+        settings_window = tkinter.Toplevel(window)
+        settings_window.title("Settings")
+
+        # Labels and Textboxes for Plane ID
+        plane_id_label = tkinter.Label(settings_window, text="Plane ID:")
+        plane_id_label.grid(row=0, column=0, padx=10, pady=5)
+        plane_id_entry = tkinter.Entry(settings_window, width=30)
+        plane_id_entry.grid(row=0, column=1, padx=10, pady=5)
+
+        # Labels and Textboxes for Model Paths
+        model_path_label1 = tkinter.Label(settings_window, text="Model Path 1:")
+        model_path_label1.grid(row=1, column=0, padx=10, pady=5)
+        model_path_entry1 = tkinter.Entry(settings_window, width=30)
+        model_path_entry1.grid(row=1, column=1, padx=10, pady=5)
+
+        model_path_label2 = tkinter.Label(settings_window, text="Model Path 2:")
+        model_path_label2.grid(row=2, column=0, padx=10, pady=5)
+        model_path_entry2 = tkinter.Entry(settings_window, width=30)
+        model_path_entry2.grid(row=2, column=1, padx=10, pady=5)
+
+        model_path_label3 = tkinter.Label(settings_window, text="Model Path 3:")
+        model_path_label3.grid(row=3, column=0, padx=10, pady=5)
+        model_path_entry3 = tkinter.Entry(settings_window, width=30)
+        model_path_entry3.grid(row=3, column=1, padx=10, pady=5)
+
+        # Label and Textbox for Server Port
+        server_port_label = tkinter.Label(settings_window, text="Server Port:")
+        server_port_label.grid(row=4, column=0, padx=10, pady=5)
+        server_port_entry = tkinter.Entry(settings_window, width=30)
+        server_port_entry.grid(row=4, column=1, padx=10, pady=5)
+
+        # "Enter" Button to Update Settings
+        def handleEnterButton():
+            plane_id = plane_id_entry.get()
+            
+            mod1 =    model_path_entry1.get()
+            mod2 =    model_path_entry2.get()
+            mod3 =    model_path_entry3.get()
+            
+            server_port = server_port_entry.get()
+
+            # Call updateSettings function to update the JSON file
+            functionality.updateSettings(plane_id, mod1, mod2, mod3, server_port)
+            
+        enter_button = tkinter.Button(settings_window, text="Enter", command=handleEnterButton)
+        enter_button.grid(row=5, column=0, columnspan=2, pady=10)
+
+        settings_window.mainloop()   
+
 
 # main loop must be here or it'll freak. if its above stuff itll end up skipping things :/
 #all other stuff goes here, above the main loop.
@@ -239,6 +304,9 @@ def getGoing(inyago, outyago):
     commandsBox.config(state="disabled")
     allSpeechBox.config(state="disabled")
     #errorBox.config(state="disabled")
+    functionality.openSettingsWindow()
+    
+    
     doFunct = functionality(window, commandsBox, allSpeechBox, commandsBox)
     doFunct.doFunctionality()
     window.mainloop()

@@ -21,7 +21,20 @@ import time
 # main task that handles
 def thread_managing():
     
-    # Temp variable for airplane identifier
+    # Airplane identifier
+    plane_id = "delta one two three"
+
+    try:
+        with open('settings.json', 'r') as json_file:
+            settings_data = json.load(json_file)
+            plane_id = settings_data['plane_id']
+            return plane_id
+    except FileNotFoundError:
+        print("settings.json not found. Make sure the file exists.")
+        return None
+    except KeyError:
+        print("Error: 'plane_id' key not found in settings.json.")
+        return None
     plane_ids = ["delta one two three", "united six seven eight", "delta five eight nine two"]
 
     # Initializing pipes, queues, etc
@@ -128,6 +141,8 @@ def thread_managing():
         
 
 if __name__ == "__main__":
+
+
 
     print("starting thread manager")
     processMain = multiprocessing.Process(target=thread_managing)

@@ -1,0 +1,11 @@
+{
+    "plane_id": "delta one two three",
+    "model_path_one": [
+        "happypath"
+    ],
+    "model_path_two": [
+        "lotopath"
+    ],
+    "model_path_three": "megapath",
+    "port": "1.3.2.4"
+}
