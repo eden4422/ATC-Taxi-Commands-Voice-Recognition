@@ -9,16 +9,13 @@ import re
 nlp = spacy.load("en_core_web_sm")
 
 airlines = {
-    "Delta",
-    "Southwest",
-    "Hawaiian",
-    "Alaska",
-    "United",
-    "American",
-    "JetBlue",
-    "Spirit",
-    "Frontier",
-    "Allegiant"
+    "Delta", "Southwest", "Hawaiian", "Alaska", "United", "American", "JetBlue", "Spirit", "Frontier", "Allegiant",
+    "Ryanair", "Lufthansa", "Air France", "KLM", "British Airways", "Turkish Airlines", "Emirates", "Qatar Airways",
+    "Etihad Airways", "Singapore Airlines", "Cathay Pacific", "ANA", "Japan Airlines", "Air Canada", "Aeroflot",
+    "China Southern Airlines", "China Eastern Airlines", "Air China", "Hainan Airlines", "IndiGo", "SpiceJet",
+    "Qantas", "Virgin Australia", "LATAM", "Gol Transportes Aéreos", "Azul", "EasyJet", "Iberia", "Vueling",
+    "SAS Scandinavian Airlines", "Finnair", "Thai Airways", "Korean Air", "Malaysia Airlines", "Garuda Indonesia",
+    "Philippine Airlines", "Vietnam Airlines", "Aeromexico", "Saudi Arabian Airlines", "Ethiopian Airlines"
 }
 
 atc_taxi_keywords = [
@@ -256,6 +253,7 @@ def save_to_JSON(result_parsed):
     with open(file_path, 'w') as file:
         file.write(json_commands)
 
-text = phonetic_command_translator("delta six two three in the event of missed approach head toward taxi the aircraft right of runway twelve near tower five but hold short of terminal two b")
+text = phonetic_command_translator(" in the event of missed approach head toward taxi the aircraft right of runway twelve near tower five but hold short of terminal two b thank you United six two three")
+#text = phonetic_command_translator("")
 print(text)
 print(parse_taxi_command(text))
