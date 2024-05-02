@@ -24,9 +24,9 @@ class CustomJSONEncoder(json.JSONEncoder):
             return str(obj)
         return super().default(obj)
 
-# This method will return the most recent timestamped item as a formatted string
+# This method will return the most recent timestamped using the date input from the text_to_json
 def View_Most_Recent():
-    most_recent_item = collection.find_one({}, sort=[("timestamp", -1)])
+    most_recent_item = collection.find_one({}, sort=[("date", -1)])
     if most_recent_item:
         return json.dumps(most_recent_item, indent=2, cls=CustomJSONEncoder)
     else:

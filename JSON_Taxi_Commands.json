@@ -1,7 +1,8 @@
 {
-  "date": "2024-05-01 06:44:34.235086",
+  "date": "2024-05-02 15:35:32.505577",
   "FlightID": "alaska 123",
-  "Command": [],
+  "Command": "have to run rate 33 taxi via b z",
   "Runway": null,
-  "Tower": null
+  "Tower": null,
+  "Terminal": null
 }
