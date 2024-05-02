@@ -1,18 +1,8 @@
 {
-<<<<<<< HEAD
-  "date": "2024-05-01 11:59:57.475862",
+  "date": "2024-05-02 15:35:32.505577",
   "FlightID": "alaska 123",
-  "Command": [
-    "had",
-    "run",
-    "had",
-    "taxi"
-  ],
-=======
-  "date": "2024-05-01 06:44:34.235086",
-  "FlightID": "alaska 123",
-  "Command": [],
->>>>>>> d5885e749e22b1697aa3d74a891e88c3d1ca4177
+  "Command": "have to run rate 33 taxi via b z",
   "Runway": null,
-  "Tower": null
+  "Tower": null,
+  "Terminal": null
 }
