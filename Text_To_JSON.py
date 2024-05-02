@@ -40,32 +40,11 @@ atc_taxi_keywords = [
 
 def phonetic_command_translator(line):
     phonetic_alphabet = {
-        'Alpha': 'A',
-        'Bravo': 'B',
-        'Charlie': 'C',
-        'Delta': 'D',
-        'Echo': 'E',
-        'Foxtrot': 'F',
-        'Golf': 'G',
-        'Hotel': 'H',
-        'India': 'I',
-        'Juliett': 'J',
-        'Kilo': 'K',
-        'Lima': 'L',
-        'Mike': 'M',
-        'November': 'N',
-        'Oscar': 'O',
-        'Papa': 'P',
-        'Quebec': 'Q',
-        'Romeo': 'R',
-        'Sierra': 'S',
-        'Tango': 'T',
-        'Uniform': 'U',
-        'Victor': 'V',
-        'Whiskey': 'W',
-        'X-ray': 'X',
-        'Yankee': 'Y',
-        'Zulu': 'Z'
+        'alpha': 'A', 'bravo': 'B', 'charlie': 'C', 'delta': 'D', 'echo': 'E', 'foxtrot': 'F',
+        'golf': 'G', 'hotel': 'H', 'india': 'I', 'juliett': 'J', 'kilo': 'K', 'lima': 'L',
+        'mike': 'M', 'november': 'N', 'oscar': 'O', 'papa': 'P', 'quebec': 'Q', 'romeo': 'R',
+        'sierra': 'S', 'tango': 'T', 'uniform': 'U', 'victor': 'V', 'whiskey': 'W', 'x-ray': 'X',
+        'yankee': 'Y', 'zulu': 'Z'
     }
     number_to_spelled_version = {
         'one': '1',
@@ -170,23 +149,22 @@ def phonetic_command_translator(line):
         'one hundred': '100'
     }
 
+
     result_list = []
     words = line.split()
     i = 0
 
     while i < len(words):
         word = words[i]
-        if word == "delta":
-            result_list.append(word)
-        elif word in phonetic_alphabet:
-            result_list.append(phonetic_alphabet[word])
-        elif (i + 1) < len(words) and (word + " " + words[i + 1]) in number_to_spelled_version:
-            result_list.append(number_to_spelled_version[word + " " + words[i + 1]])
+        if word in phonetic_alphabet.keys():
+            result_list.append(phonetic_alphabet[word.lower()])
+        elif (i + 1) < len(words) and (word + " " + words[i + 1].lower()) in number_to_spelled_version:
+            result_list.append(number_to_spelled_version[word + " " + words[i + 1].lower()])
             i += 1  # Skip the next word
         elif word in number_to_spelled_version:
             result_list.append(number_to_spelled_version[word])
         else:
-            result_list.append(word)
+            result_list.append(words[i])  # Keep original case for words not in dictionaries
         i += 1
     return ' '.join(result_list)
 
@@ -203,49 +181,73 @@ def find_verbs(text):
 
     return verbs
 
+def extract_command(line):
+    words = line.lower().split()
+    verbs = find_verbs(line)
+    first_verb_index = next((i for i, word in enumerate(words) if word in verbs), None)
+
+    if first_verb_index is None:
+        return ""  
+    return ' '.join(words[first_verb_index:])
+
 
 def extract_flight(line):
-    # Regex pattern to match the airline name followed by a series of digits separated by spaces
-    match = re.search(r'\b(' + '|'.join(airlines) + r')\s(\d+\s*)+\b', line, re.IGNORECASE)
+    # Regex pattern to match 'D' or full airline name followed by a series of digits
+    # Expanded to include handling the single 'D' as an abbreviation for "Delta"
+    pattern = r'\b(D|\b' + '|'.join(airlines) + r')\s*(\d+\s*)+\b'
+    match = re.search(pattern, line, re.IGNORECASE)
 
     if match:
-        # Extract the airline name and the flight number
+        # Extract the airline name or abbreviation and the flight number
         airline = match.group(1)
         flight_numbers = ''.join(re.findall(r'\d+', match.group()))
 
+        # Check if the airline is 'D' and convert it to 'Delta'
+        if airline.upper() == 'D':
+            airline = 'Delta'
+        
         return f'{airline} {flight_numbers}'
     else:
         return None
+    
 
-def extract_command(line):
-
-    return find_verbs(line)
 
 def extract_runway(line):
-    match = re.search(r"runway\d", line)
+    match = re.search(r"runway \d{1,2}", line)
     if match:
         return match.group()
     else:
         return None
 
+
 def extract_tower(line):
-    match = re.search(r"tower \d", line)
+    match = re.search(r"tower \d{1,2}", line)
     if match:
         return match.group()
     else:
         return None
+
+def extract_terminal(line):
+    match = re.search(r"terminal \d{1,2}", line)
+    if match:
+        return match.group()
+    else:
+        return None    
+
 
 def parse_taxi_command(line):
         flight_id = extract_flight(line)
         command = extract_command(line)
         runway = extract_runway(line)
         tower = extract_tower(line)
+        terminal = extract_terminal(line)
         return {
             "date": str(datetime.now()),
             "FlightID": flight_id,
             "Command": command,
             "Runway": runway,
-            "Tower": tower
+            "Tower": tower,
+            "Terminal": terminal
         }
 
 def save_to_JSON(result_parsed):
@@ -254,4 +256,6 @@ def save_to_JSON(result_parsed):
     with open(file_path, 'w') as file:
         file.write(json_commands)
 
-text = phonetic_command_translator("delta 623, in the event of missed approach, taxiing aircraft right of runway one")
+text = phonetic_command_translator("delta six two three in the event of missed approach head toward taxi the aircraft right of runway twelve near tower five but hold short of terminal two b")
+print(text)
+print(parse_taxi_command(text))
