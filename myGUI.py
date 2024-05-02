@@ -5,7 +5,6 @@ from commands import *
 import Mongo_Read_Data
 import JSON_to_Mongo
 import json
-import os
 import tempfile
 import fasteners
 import shutil
