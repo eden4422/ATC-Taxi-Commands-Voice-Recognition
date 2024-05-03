@@ -56,8 +56,17 @@ startButton.pack(side=tkinter.LEFT)
 endButton.pack(side=tkinter.LEFT)
 pullRecentButton.pack(side=tkinter.LEFT)
 pullAllCommandsButton.pack(side=tkinter.LEFT)
-clearButton = tkinter.Button(master=bottomFrame, text="Clear All Speech", command=lambda: allSpeechBox.delete(1.0, tkinter.END))
-clearButton.pack(side=tkinter.LEFT)
+
+# Create a function to clear the text from the allSpeechBox
+def clear_all_speech():
+    allSpeechBox.config(state="normal")
+    allSpeechBox.delete("1.0", tkinter.END)
+    allSpeechBox.config(state="disabled")
+
+# Create a button that will call the clear_all_speech function when clicked
+clearAllSpeechButton = tkinter.Button(master=bottomFrame, text="Clear All Speech", command=clear_all_speech)
+clearAllSpeechButton.pack(side=tkinter.LEFT)
+
 
 #______________________________________________________________________________________
 # Create a new frame for the flight id input
