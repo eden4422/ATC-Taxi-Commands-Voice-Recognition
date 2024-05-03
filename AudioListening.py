@@ -3,10 +3,7 @@ import sounddevice as sd
 from vosk import Model, KaldiRecognizer
 import sys
 import json
-from time import sleep
 import wave
-import multiprocessing
-import queue
 from commands import MUTE
 import fasteners
 
@@ -44,7 +41,7 @@ def listen_for_audio(audiobit_queue, audio_com_in, audio_com_out):
 
     # build the model and recognizer objects.
     print("===> Build the model and recognizer objects.  This will take a few minutes.")
-    model = Model("vosk-model-small-en-us-0.15")
+    model = Model("../vosk models/vosk-model-en-us-0.42-gigaspeech")
     recognizer = KaldiRecognizer(model, samplerate)
     recognizer.SetWords(True)
 

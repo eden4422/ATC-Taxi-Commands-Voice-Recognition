@@ -255,5 +255,5 @@ def save_to_JSON(result_parsed):
 
 text = phonetic_command_translator(" in the event of missed approach head toward taxi the aircraft right of runway twelve near tower five but hold short of terminal two b thank you United six two three")
 #text = phonetic_command_translator("")
-print(text)
-print(parse_taxi_command(text))
+# print(text)
+# print(parse_taxi_command(text))

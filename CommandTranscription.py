@@ -11,43 +11,46 @@ def transcribe_audio(input_audio_queue,text_queue, com_in_queue,com_out_queue):
     
     running = True
     while running:
-
         # If we get audio in the input_audio_queue, process it
-        if not input_audio_queue.empty():        
-            print("transcribing begin")
+        if not input_audio_queue.empty():
+            print("Transcription process started")
             audio_bits = input_audio_queue.get()
-            
-            model_link_one = "vosk-model-small-en-us-0.15"
-            model_link_two = "vosk-model-small-en-us-0.15"
-            model_link_three = "vosk-model-small-en-us-0.15"
 
-            # creating queue for output text
+            # Define model paths
+            model_link_one = "vosk-model-small-en-us-0.15"
+            model_link_two = "../vosk models/vosk-model-en-us-0.22"
+            model_link_three = "../vosk models/vosk-model-en-us-0.42-gigaspeech"
+
+            # Create queues for output text and errors
             output_text = multiprocessing.Queue()
             error_queue = multiprocessing.Queue()
 
-            # creating three model processes 
-            model_process_one = multiprocessing.Process(target=trans_model, args=(audio_bits, model_link_one, output_text, error_queue))
-            model_process_two = multiprocessing.Process(target=trans_model, args=(audio_bits, model_link_two, output_text, error_queue))
-            model_process_three = multiprocessing.Process(target=trans_model, args=(audio_bits, model_link_three, output_text, error_queue))
+            try:
+                # Create three model processes
+                model_process_one = multiprocessing.Process(target=trans_model, args=(audio_bits, model_link_one, output_text, error_queue))
+                model_process_two = multiprocessing.Process(target=trans_model, args=(audio_bits, model_link_two, output_text, error_queue))
+                model_process_three = multiprocessing.Process(target=trans_model, args=(audio_bits, model_link_three, output_text, error_queue))
 
-            # start all three processes
-            model_process_one.start()
-            model_process_two.start()
-            model_process_three.start()
+                # Start all three processes
+                model_process_one.start()
+                model_process_two.start()
+                model_process_three.start()
 
-            print("started processes\n\n\n\n\n\n\n")
-            # sleep until all three processes complete
-            model_process_one.join()
-            model_process_two.join()
-            model_process_three.join()
-            print("processes ended")
+                # Wait for processes to complete
+                model_process_one.join()
+                model_process_two.join()
+                model_process_three.join()
+
+                print("Transcription processes ended successfully")
+            except Exception as e:
+                print(f"Error: {e}")
     
             # adding results to list
             results: list = []
 
             while not output_text.empty():
                 results.append(output_text.get())
-    
+
             # checking list for if we have sufficient agreement
             tests_pass = False
             test_passed = None
