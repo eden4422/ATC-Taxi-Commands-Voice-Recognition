@@ -56,6 +56,9 @@ startButton.pack(side=tkinter.LEFT)
 endButton.pack(side=tkinter.LEFT)
 pullRecentButton.pack(side=tkinter.LEFT)
 pullAllCommandsButton.pack(side=tkinter.LEFT)
+clearButton = tkinter.Button(master=bottomFrame, text="Clear All Speech", command=lambda: allSpeechBox.delete(1.0, tkinter.END))
+clearButton.pack(side=tkinter.LEFT)
+
 #______________________________________________________________________________________
 # Create a new frame for the flight id input
 flightIdFrame = tkinter.Frame(master=window)  # Change containingFrame to window

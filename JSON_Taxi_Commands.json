@@ -1,7 +1,7 @@
 {
-  "date": "2024-05-02 15:35:32.505577",
+  "date": "2024-05-02 16:23:13.546347",
   "FlightID": "alaska 123",
-  "Command": "have to run rate 33 taxi via b z",
+  "Command": "taxi via b z",
   "Runway": null,
   "Tower": null,
   "Terminal": null
